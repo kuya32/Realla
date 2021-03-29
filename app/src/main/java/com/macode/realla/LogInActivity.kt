@@ -10,11 +10,16 @@ import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
+import com.macode.realla.activities.SetUpActivity
 import com.macode.realla.databinding.ActivityLogInBinding
+import com.macode.realla.firebase.FireStoreClass
+import com.macode.realla.models.User
 
 class LogInActivity : BaseActivity() {
     private lateinit var binding: ActivityLogInBinding
     private lateinit var auth: FirebaseAuth
+
+    private var fireStoreClass: FireStoreClass = FireStoreClass()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,11 +68,9 @@ class LogInActivity : BaseActivity() {
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             hideProgressDialog()
             if (task.isSuccessful) {
-                hideProgressDialog()
-                Log.i("Log In", "Log in with email was successful!")
                 if (auth.currentUser!!.isEmailVerified) {
-                    startActivity(Intent(this, MainActivity::class.java))
-                    finish()
+                    fireStoreClass.logInUser(this)
+                    Log.i("Log In", "Log in with email was successful!")
                 } else {
                     showErrorToastMessage(this, "Please verify your account!")
                 }
@@ -76,5 +79,11 @@ class LogInActivity : BaseActivity() {
                 showErrorToastException(task, this)
             }
         }
+    }
+
+    fun logInSuccess(loggedInUser: User) {
+        hideProgressDialog()
+        startActivity(Intent(this, SetUpActivity::class.java))
+        finish()
     }
 }
