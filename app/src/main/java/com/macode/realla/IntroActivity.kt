@@ -14,11 +14,11 @@ class IntroActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-        binding.signInButton.setOnClickListener {
+        binding.introSignInButton.setOnClickListener {
             startActivity(Intent(this, LogInActivity::class.java))
         }
 
-        binding.signUpButton.setOnClickListener {
+        binding.introSignUpButton.setOnClickListener {
             startActivity(Intent(this, SignUpActivity::class.java))
         }
     }

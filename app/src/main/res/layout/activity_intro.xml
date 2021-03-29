@@ -56,11 +56,11 @@
         app:layout_constraintTop_toBottomOf="@+id/letsGetStartedText" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/signInButton"
+        android:id="@+id/introSignInButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@drawable/shape_button_rounded"
-        android:text="Sign In"
+        android:text="Log In"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textColor="@color/white"
@@ -70,7 +70,7 @@
         app:layout_constraintTop_toBottomOf="@+id/introDescriptionText" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/signUpButton"
+        android:id="@+id/introSignUpButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@drawable/shape_two_button_rounded"
@@ -79,8 +79,8 @@
         android:textSize="20sp"
         android:textStyle="bold"
         android:layout_marginTop="15dp"
-        app:layout_constraintEnd_toEndOf="@+id/signInButton"
-        app:layout_constraintStart_toStartOf="@+id/signInButton"
-        app:layout_constraintTop_toBottomOf="@+id/signInButton" />
+        app:layout_constraintEnd_toEndOf="@+id/introSignInButton"
+        app:layout_constraintStart_toStartOf="@+id/introSignInButton"
+        app:layout_constraintTop_toBottomOf="@+id/introSignInButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
