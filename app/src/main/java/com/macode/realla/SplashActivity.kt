@@ -1,8 +1,11 @@
 package com.macode.realla
 
+import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.WindowInsets
 import android.view.WindowManager
 
@@ -20,5 +23,10 @@ class SplashActivity : AppCompatActivity() {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
             )
         }
+
+        Handler(Looper.myLooper()!!).postDelayed({
+            startActivity(Intent(this, IntroActivity::class.java))
+            finish()
+        }, 2500)
     }
 }
