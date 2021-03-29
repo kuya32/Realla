@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "18191776012",
+    "project_id": "realla-89f0a",
+    "storage_bucket": "realla-89f0a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:18191776012:android:e72fd2e5e437bdd566f129",
+        "android_client_info": {
+          "package_name": "com.macode.realla"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "18191776012-kl94t49rboler91r70ql6eqje74tnmsi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBV_L9MHTR_6HAMUkCuGHv9S4527ZuG9vM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "18191776012-kl94t49rboler91r70ql6eqje74tnmsi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

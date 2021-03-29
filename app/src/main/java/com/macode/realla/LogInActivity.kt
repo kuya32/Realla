@@ -5,12 +5,16 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import com.google.android.material.textfield.TextInputLayout
+import com.google.firebase.auth.FirebaseAuth
 import com.macode.realla.databinding.ActivityLogInBinding
 
-class LogInActivity : AppCompatActivity() {
+class LogInActivity : BaseActivity() {
     private lateinit var binding: ActivityLogInBinding
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +34,8 @@ class LogInActivity : AppCompatActivity() {
             onBackPressed()
         }
 
+        auth = FirebaseAuth.getInstance()
+
         binding.forgotPassword.setOnClickListener {
             startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
@@ -40,7 +46,9 @@ class LogInActivity : AppCompatActivity() {
             } else if (binding.passwordEditInput.text.isNullOrEmpty()) {
                 showError(binding.passwordInput, "Please enter your password!")
             } else {
-
+                val email = binding.emailEditInput.text.toString()
+                val password = binding.passwordEditInput.text.toString()
+                logInUser(email, password)
             }
         }
 
@@ -50,8 +58,23 @@ class LogInActivity : AppCompatActivity() {
         }
     }
 
-    private fun showError(layout: TextInputLayout, text: String) {
-        layout.error = text
-        layout.requestFocus()
+    private fun logInUser(email: String, password: String) {
+        showProgressDialog("Please wait...")
+        auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
+            hideProgressDialog()
+            if (task.isSuccessful) {
+                hideProgressDialog()
+                Log.i("Log In", "Log in with email was successful!")
+                if (auth.currentUser!!.isEmailVerified) {
+                    startActivity(Intent(this, MainActivity::class.java))
+                    finish()
+                } else {
+                    showErrorToastMessage(this, "Please verify your account!")
+                }
+            } else {
+                task.exception!!.message?.let { Log.e("Log In", it) }
+                showErrorToastException(task, this)
+            }
+        }
     }
 }
