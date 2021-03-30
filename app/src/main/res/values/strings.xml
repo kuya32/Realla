@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Realla</string>
+    <string name="underlineLogIn"><u>Log In</u></string>
+    <string name="underlineSignUp"><u>Sign Up</u></string>
+</resources>

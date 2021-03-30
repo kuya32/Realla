@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/transMist"
+    tools:context=".IntroActivity">
+
+    <ImageView
+        android:id="@+id/introLogoImage"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:src="@drawable/logo2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/tackImage"
+        android:layout_width="300dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="140dp"
+        android:src="@drawable/task_image"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/letsGetStartedText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Let's Get Started"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        android:layout_margin="20sp"
+        android:gravity="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tackImage" />
+
+    <TextView
+        android:id="@+id/introDescriptionText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="Collaborate and Plan Together Across Multiple Devices on Realla Minimalist Interface."
+        android:textStyle="italic"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/letsGetStartedText" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/introSignInButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shape_button_rounded"
+        android:text="Log In"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:layout_marginTop="50dp"
+        app:layout_constraintEnd_toEndOf="@+id/introDescriptionText"
+        app:layout_constraintStart_toStartOf="@+id/introDescriptionText"
+        app:layout_constraintTop_toBottomOf="@+id/introDescriptionText" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/introSignUpButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shape_two_button_rounded"
+        android:text="Sign Up"
+        android:textColor="@color/pebble"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginTop="15dp"
+        app:layout_constraintEnd_toEndOf="@+id/introSignInButton"
+        app:layout_constraintStart_toStartOf="@+id/introSignInButton"
+        app:layout_constraintTop_toBottomOf="@+id/introSignInButton" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

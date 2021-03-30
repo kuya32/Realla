@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group>
+        <item
+            android:id="@+id/navMyProfile"
+            android:icon="@drawable/nav_person"
+            android:title="My Profile" />
+        <item
+            android:id="@+id/logOut"
+            android:icon="@drawable/logout"
+            android:title="LogOut" />
+    </group>
+</menu>
