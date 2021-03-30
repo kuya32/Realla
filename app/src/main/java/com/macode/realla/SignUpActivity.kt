@@ -18,8 +18,6 @@ class SignUpActivity : BaseActivity() {
     private lateinit var binding: ActivitySignUpBinding
     private lateinit var auth: FirebaseAuth
 
-    private var fireStoreClass: FireStoreClass = FireStoreClass()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySignUpBinding.inflate(layoutInflater)

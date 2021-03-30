@@ -11,25 +11,28 @@ data class User (
     var lastName: String = "",
     var email: String = "",
     var image: String = "",
-    var phone: Long = 0,
+    var phone: String = "",
     var cityLocation: String = "",
     var stateLocation: String = "",
+    var occupation: String = "",
     var deviceToken: String = "",
     var status: String = "Online"
 ): Parcelable {
     constructor(parcel: Parcel) : this(
-            parcel.readString()!!,
-            parcel.readString()!!,
-            parcel.readString()!!,
-            parcel.readString()!!,
-            parcel.readString()!!,
-            parcel.readString()!!,
-            parcel.readString()!!,
-            parcel.readLong(),
-            parcel.readString()!!,
-            parcel.readString()!!,
-            parcel.readString()!!,
-            parcel.readString()!!) {
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.readString()!!,
+        parcel.readString()!!
+    ) {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -40,9 +43,10 @@ data class User (
         parcel.writeString(lastName)
         parcel.writeString(email)
         parcel.writeString(image)
-        parcel.writeLong(phone)
+        parcel.writeString(phone)
         parcel.writeString(cityLocation)
         parcel.writeString(stateLocation)
+        parcel.writeString(occupation)
         parcel.writeString(deviceToken)
         parcel.writeString(status)
     }

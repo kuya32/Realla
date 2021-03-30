@@ -19,8 +19,6 @@ class LogInActivity : BaseActivity() {
     private lateinit var binding: ActivityLogInBinding
     private lateinit var auth: FirebaseAuth
 
-    private var fireStoreClass: FireStoreClass = FireStoreClass()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLogInBinding.inflate(layoutInflater)
@@ -83,7 +81,17 @@ class LogInActivity : BaseActivity() {
 
     fun logInSuccess(loggedInUser: User) {
         hideProgressDialog()
-        startActivity(Intent(this, SetUpActivity::class.java))
+        val image = loggedInUser.image
+        val username = loggedInUser.username
+        val city = loggedInUser.cityLocation
+        val state = loggedInUser.stateLocation
+        val occupation = loggedInUser.occupation
+
+        if (image != "" && username != "" && city != "" && state != "" && occupation != "") {
+            startActivity(Intent(this, MainActivity::class.java))
+        } else {
+            startActivity(Intent(this, SetUpActivity::class.java))
+        }
         finish()
     }
 }
