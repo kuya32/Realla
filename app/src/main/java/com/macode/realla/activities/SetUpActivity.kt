@@ -16,10 +16,8 @@ import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Looper
-import android.provider.MediaStore
 import android.provider.Settings
 import android.telephony.PhoneNumberFormattingTextWatcher
 import android.util.Log
@@ -27,41 +25,34 @@ import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.Toolbar
+import com.bumptech.glide.Glide
 import com.google.android.gms.location.*
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
+import com.google.firebase.auth.FirebaseAuth
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
-import com.macode.realla.BaseActivity
-import com.macode.realla.LogInActivity
-import com.macode.realla.MainActivity
+import com.macode.realla.*
 import com.macode.realla.R
 import com.macode.realla.databinding.ActivitySetUpBinding
-import com.macode.realla.firebase.FireStoreClass
 import com.macode.realla.models.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
-import java.io.OutputStream
 import java.lang.Exception
-import java.lang.StringBuilder
-import java.text.SimpleDateFormat
 import java.util.*
 
 class SetUpActivity : BaseActivity(), View.OnClickListener {
     private lateinit var binding: ActivitySetUpBinding
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var progressDialog: Dialog
-    private var saveImageToInternalStorage: Uri? = null
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
     private var phoneNumberFormattingTextWatcher: PhoneNumberFormattingTextWatcher = PhoneNumberFormattingTextWatcher()
@@ -78,11 +69,14 @@ class SetUpActivity : BaseActivity(), View.OnClickListener {
         supportActionBar?.title = "Set Up Account Information"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.back)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.blue_back)
+
         toolbar.setTitleTextColor(Color.parseColor("#66AFD4"))
         toolbar.setNavigationOnClickListener {
-
-            startActivity(Intent(this, LogInActivity::class.java))
+            FirebaseAuth.getInstance().signOut()
+            val intent = Intent(this, IntroActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
             finish()
         }
 
@@ -103,20 +97,9 @@ class SetUpActivity : BaseActivity(), View.OnClickListener {
     override fun onClick(v: View?) {
         when(v!!.id) {
             R.id.setUpProfileImage -> {
-                val pictureDialog = AlertDialog.Builder(this)
-                pictureDialog.setTitle("Select Action")
-                val pictureDialogItems = arrayOf("Select photo from gallery", "Capture photo from camera")
-                pictureDialog.setItems(pictureDialogItems) {
-                        _, which ->
-                    when(which) {
-                        0 -> choosePhotoFromGallery()
-                        1 -> takePhotoWithCamera()
-                    }
-                }
-                pictureDialog.show()
+                showPictureDialog()
             }
             R.id.locationEditInput -> {
-                binding.locationEditInput.text!!.clear()
                 try {
                     val fields = listOf(
                         Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS
@@ -167,24 +150,18 @@ class SetUpActivity : BaseActivity(), View.OnClickListener {
                 } else if (binding.occupationEditInput.text.isNullOrEmpty()) {
                     showError(binding.occupationInput, "Please provide a occupation!")
                 } else {
-                    val user = User()
                     val cityName = binding.locationEditInput.text!!.substring(0, binding.locationEditInput.text!!.indexOf(","))
                     val stateName = binding.locationEditInput.text!!.substring(binding.locationEditInput.text!!.indexOf(",") + 2)
-                    user.image = saveImageToInternalStorage.toString()
-                    user.username = binding.usernameEditInput.text.toString()
-                    user.phone = binding.phoneEditInput.text.toString()
-                    user.cityLocation = cityName
-                    user.stateLocation = stateName
-                    user.occupation = binding.occupationEditInput.text.toString()
-                    fireStoreClass.updateUser(this, user)
+                    userDetails.image = saveImageToInternalStorage.toString()
+                    userDetails.username = binding.usernameEditInput.text.toString()
+                    userDetails.phone = binding.phoneEditInput.text.toString()
+                    userDetails.cityLocation = cityName
+                    userDetails.stateLocation = stateName
+                    userDetails.occupation = binding.occupationEditInput.text.toString()
+                    fireStoreClass.updateUser(this, userDetails)
                 }
             }
         }
-    }
-
-    private fun isLocationEnabled(): Boolean {
-        val locationManager: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     }
 
     @SuppressLint("MissingPermission")
@@ -238,15 +215,20 @@ class SetUpActivity : BaseActivity(), View.OnClickListener {
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == GALLERY) {
                 if (data != null) {
-                    val contentURI = data.data
+                    selectedImageFileUri = data.data
                     try {
                         val selectedImageBitmap = ImageDecoder.decodeBitmap(
                             ImageDecoder.createSource(this.contentResolver,
-                            contentURI!!
+                            selectedImageFileUri!!
                         ))
                         saveImageToInternalStorage = saveImageToInternalStorage(selectedImageBitmap)
                         Log.i("Saved image: ", "Path :: $saveImageToInternalStorage")
-                        binding.setUpProfileImage.setImageBitmap(selectedImageBitmap)
+                        Glide
+                            .with(this)
+                            .load(selectedImageFileUri)
+                            .centerCrop()
+                            .placeholder(R.drawable.person)
+                            .into(binding.setUpProfileImage)
                     } catch (e: IOException) {
                         e.printStackTrace()
                         Toast.makeText(this@SetUpActivity, "Failed to load the image!", Toast.LENGTH_SHORT).show()
@@ -257,16 +239,24 @@ class SetUpActivity : BaseActivity(), View.OnClickListener {
                     val bitmap: Bitmap = data.extras!!.get("data") as Bitmap
                     saveImageToInternalStorage = saveImageToInternalStorage(bitmap)
                     Log.i("Saved image: ", "Path :: $saveImageToInternalStorage")
-                    binding.setUpProfileImage.setImageBitmap(bitmap)
+                    Glide
+                        .with(this)
+                        .load(bitmap)
+                        .centerCrop()
+                        .placeholder(R.drawable.person)
+                        .into(binding.setUpProfileImage)
                 }
             } else if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
                 val place: Place = Autocomplete.getPlaceFromIntent(data!!)
-                binding.locationEditInput.setText(place.address)
+                val regex = "([^,]+), ([A-Z]{2,})".toRegex()
+                val matchResult = regex.find(place.address.toString())
+                binding.locationEditInput.setText(matchResult?.value.toString())
                 latitude = place.latLng!!.latitude
                 longitude = place.latLng!!.longitude
             }
         }
     }
+
 
     fun updateUserSuccess() {
         hideProgressDialog()

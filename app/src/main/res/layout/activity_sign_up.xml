@@ -157,7 +157,7 @@
         android:id="@+id/signUpButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/shape_button_rounded"
+        android:background="@drawable/shape_blue_button_rounded"
         android:layout_marginTop="40dp"
         android:text="Sign Up"
         android:textColor="@color/white"

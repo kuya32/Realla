@@ -9,15 +9,19 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.graphics.Bitmap
+import android.location.LocationManager
 import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
 import android.provider.Settings
+import android.webkit.MimeTypeMap
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
@@ -25,6 +29,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -35,6 +40,7 @@ import com.macode.realla.activities.SetUpActivity
 import com.macode.realla.databinding.ActivityBaseBinding
 import com.macode.realla.databinding.CustomDialogProgressBinding
 import com.macode.realla.firebase.FireStoreClass
+import com.macode.realla.models.User
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -47,13 +53,19 @@ open class BaseActivity : AppCompatActivity() {
         const val GALLERY = 1
         const val CAMERA = 2
         const val PLACE_AUTOCOMPLETE_REQUEST_CODE = 3
+        const val MY_PROFILE_REQUEST_CODE = 11
         const val IMAGE_DIRECTORY = "ReallaAppImages"
     }
 
     private lateinit var binding: ActivityBaseBinding
+    var userDetails: User = User()
     private val fireStore = FirebaseFirestore.getInstance()
     val userReference = fireStore.collection("Users")
+    val storageReference = FirebaseStorage.getInstance()
     var fireStoreClass: FireStoreClass = FireStoreClass()
+    var saveImageToInternalStorage: Uri? = null
+    var selectedImageFileUri: Uri? = null
+    var profileImageURL: String? = ""
 
     private var doubleBackToExitPressedOnce = false
 
@@ -66,7 +78,7 @@ open class BaseActivity : AppCompatActivity() {
         setContentView(view)
     }
 
-    fun choosePhotoFromGallery() {
+    private fun choosePhotoFromGallery() {
         Dexter.withContext(this).withPermissions(
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
@@ -84,7 +96,13 @@ open class BaseActivity : AppCompatActivity() {
         }).onSameThread().check()
     }
 
-    fun takePhotoWithCamera() {
+    fun isLocationEnabled(): Boolean {
+        val locationManager: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
+            LocationManager.NETWORK_PROVIDER)
+    }
+
+    private fun takePhotoWithCamera() {
         Dexter.withContext(this).withPermissions(
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -120,6 +138,10 @@ open class BaseActivity : AppCompatActivity() {
         return Uri.parse(file.absolutePath)
     }
 
+    fun getFileExtension(uri: Uri?): String? {
+        return MimeTypeMap.getSingleton().getExtensionFromMimeType(contentResolver.getType(uri!!))
+    }
+
     fun showRationalDialogForPermissions() {
         AlertDialog.Builder(this).setMessage("It looks like you have turned off permission required for this feature. " +
                 "It can be enabled under Application Settings.")
@@ -140,10 +162,12 @@ open class BaseActivity : AppCompatActivity() {
     }
 
     fun showProgressDialog(text: String) {
-        val progressText = findViewById<TextView>(R.id.pleaseWaitText)
         progressDialog = Dialog(this)
         progressDialog.setContentView(R.layout.custom_dialog_progress)
-        progressText.text = text
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val progressText = progressDialog.requireViewById<TextView>(R.id.pleaseWaitText)
+            progressText.text = text
+        }
         progressDialog.show()
     }
 
@@ -151,8 +175,27 @@ open class BaseActivity : AppCompatActivity() {
         progressDialog.dismiss()
     }
 
+    fun showPictureDialog() {
+        val pictureDialog = AlertDialog.Builder(this)
+        pictureDialog.setTitle("Select Action")
+        val pictureDialogItems = arrayOf("Select photo from gallery", "Capture photo from camera")
+        pictureDialog.setItems(pictureDialogItems) {
+                _, which ->
+            when(which) {
+                0 -> choosePhotoFromGallery()
+                1 -> takePhotoWithCamera()
+            }
+        }
+        pictureDialog.show()
+    }
+
     fun getCurrentID(): String {
-        return FirebaseAuth.getInstance().currentUser!!.uid
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        var currentUserID = ""
+        if (currentUser != null) {
+            currentUserID = currentUser.uid
+        }
+        return currentUserID
     }
 
     fun doubleBackToExit() {

@@ -1,17 +1,22 @@
 package com.macode.realla
 
+import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.macode.realla.activities.MyProfileActivity
 import com.macode.realla.databinding.ActivityMainBinding
 import com.macode.realla.databinding.NavHeaderMainBinding
 import com.macode.realla.models.User
@@ -30,7 +35,16 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         binding.navView.setNavigationItemSelectedListener(this@MainActivity)
 
-        fireStoreClass.logInUser(this)
+        fireStoreClass.establishUser(this)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE) {
+            fireStoreClass.establishUser(this)
+        } else {
+            Log.e("MainActivityResult", "Cancelled")
+        }
     }
 
     private fun setUpActionBar() {
@@ -62,9 +76,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.navMyProfile -> {
-                Toast.makeText(this, "Hello", Toast.LENGTH_LONG).show()
+                startActivityForResult(Intent(this, MyProfileActivity::class.java), MY_PROFILE_REQUEST_CODE)
             }
             R.id.logOut -> {
+                userReference.document(getCurrentID()).
                 FirebaseAuth.getInstance().signOut()
                 val intent = Intent(this, IntroActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)

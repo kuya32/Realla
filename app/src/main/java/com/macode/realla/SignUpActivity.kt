@@ -9,7 +9,6 @@ import androidx.appcompat.widget.Toolbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.macode.realla.databinding.ActivitySignUpBinding
-import com.macode.realla.firebase.FireStoreClass
 import com.macode.realla.models.User
 import java.text.SimpleDateFormat
 import java.util.*
@@ -29,7 +28,7 @@ class SignUpActivity : BaseActivity() {
         supportActionBar?.title = "Sign Up"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.back)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.blue_back)
         toolbar.setTitleTextColor(Color.parseColor("#66AFD4"))
 
         toolbar.setNavigationOnClickListener {

@@ -6,13 +6,17 @@
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
+    <color name="grey">#7F7F7F</color>
     <color name="white">#FFFFFFFF</color>
 
     <color name="mist">#90AFC5</color>
+    <color name="lightMist">#C3E2F8</color>
     <color name="transMist">#8090AFC5</color>
     <color name="stone">#336B87</color>
     <color name="pebble">#66AFD4</color>
     <color name="shadow">#2A3132</color>
     <color name="autumnFoliage">#763626</color>
+    <color name="lightAutumnFoliage">#DC9C8C</color>
+    <color name="darkAutumnFoliage">#430300</color>
     <color name="red">#F72400</color>
 </resources>

@@ -3,16 +3,12 @@ package com.macode.realla
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
-import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.macode.realla.activities.SetUpActivity
 import com.macode.realla.databinding.ActivityLogInBinding
-import com.macode.realla.firebase.FireStoreClass
 import com.macode.realla.models.User
 
 class LogInActivity : BaseActivity() {
@@ -31,7 +27,7 @@ class LogInActivity : BaseActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Log In"
         supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.back)
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.blue_back)
 
         toolbar.setNavigationOnClickListener {
             onBackPressed()
@@ -64,10 +60,9 @@ class LogInActivity : BaseActivity() {
     private fun logInUser(email: String, password: String) {
         showProgressDialog("Please wait...")
         auth.signInWithEmailAndPassword(email, password).addOnCompleteListener { task ->
-            hideProgressDialog()
             if (task.isSuccessful) {
                 if (auth.currentUser!!.isEmailVerified) {
-                    fireStoreClass.logInUser(this)
+                    fireStoreClass.establishUser(this)
                     Log.i("Log In", "Log in with email was successful!")
                 } else {
                     showErrorToastMessage(this, "Please verify your account!")
@@ -89,6 +84,7 @@ class LogInActivity : BaseActivity() {
 
         if (image != "" && username != "" && city != "" && state != "" && occupation != "") {
             startActivity(Intent(this, MainActivity::class.java))
+            finish()
         } else {
             startActivity(Intent(this, SetUpActivity::class.java))
         }

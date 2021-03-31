@@ -9,6 +9,7 @@ import com.google.firebase.firestore.SetOptions
 import com.macode.realla.LogInActivity
 import com.macode.realla.MainActivity
 import com.macode.realla.SignUpActivity
+import com.macode.realla.activities.MyProfileActivity
 import com.macode.realla.activities.SetUpActivity
 import com.macode.realla.models.User
 
@@ -27,7 +28,7 @@ class FireStoreClass {
         }
     }
 
-    fun logInUser(activity: Activity) {
+    fun establishUser(activity: Activity) {
         userReference.document(getCurrentUserID()).get().addOnSuccessListener { document ->
             val loggedInUser = document.toObject(User::class.java)
             when (activity) {
@@ -37,6 +38,9 @@ class FireStoreClass {
                 is MainActivity -> {
                     activity.updateNavigationUserDetails(loggedInUser!!)
                 }
+                is MyProfileActivity -> {
+                    activity.updateMyProfileUserDetails(loggedInUser!!)
+                }
             }
         }.addOnFailureListener { e ->
             when (activity) {
@@ -44,6 +48,9 @@ class FireStoreClass {
                     activity.hideProgressDialog()
                 }
                 is MainActivity -> {
+                    activity.hideProgressDialog()
+                }
+                is MyProfileActivity -> {
                     activity.hideProgressDialog()
                 }
             }
@@ -66,6 +73,18 @@ class FireStoreClass {
             } else {
                 Toast.makeText(activity, "User was not updated to Firebase", Toast.LENGTH_SHORT).show()
             }
+        }
+    }
+
+    fun updatedUserProfileData(activity: MyProfileActivity, userHashMap: HashMap<String, Any>) {
+        userReference.document(getCurrentUserID()).update(userHashMap).addOnSuccessListener {
+            Log.i(activity.javaClass.simpleName, "Profile data updated successfully")
+            Toast.makeText(activity, "Profile data updated successfully", Toast.LENGTH_SHORT).show()
+            activity.profileUpdatedSuccess()
+        }.addOnFailureListener { e ->
+            activity.hideProgressDialog()
+            Log.e(activity.javaClass.simpleName, "Error while updating profile")
+            Toast.makeText(activity, "Error while updating profile", Toast.LENGTH_SHORT).show()
         }
     }
 
