@@ -1,11 +1,13 @@
 package com.macode.realla.firebase
 
 import android.app.Activity
+import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.macode.realla.IntroActivity
 import com.macode.realla.LogInActivity
 import com.macode.realla.MainActivity
 import com.macode.realla.SignUpActivity
@@ -33,7 +35,12 @@ class FireStoreClass {
             val loggedInUser = document.toObject(User::class.java)
             when (activity) {
                 is LogInActivity -> {
-                    activity.logInSuccess(loggedInUser!!)
+                    userReference.document(getCurrentUserID()).update("status", "Online").addOnSuccessListener {
+                        activity.logInSuccess(loggedInUser!!)
+                    }.addOnFailureListener { e ->
+                        Log.e(activity.javaClass.simpleName, "Error logging in user", e)
+                        Toast.makeText(activity, "Sorry, we can't log you in!", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 is MainActivity -> {
                     activity.updateNavigationUserDetails(loggedInUser!!)
@@ -83,8 +90,18 @@ class FireStoreClass {
             activity.profileUpdatedSuccess()
         }.addOnFailureListener { e ->
             activity.hideProgressDialog()
-            Log.e(activity.javaClass.simpleName, "Error while updating profile")
+            Log.e(activity.javaClass.simpleName, "Error while updating profile", e)
             Toast.makeText(activity, "Error while updating profile", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun logoutUser(activity: MainActivity) {
+        userReference.document(getCurrentUserID()).update("status", "Offline").addOnSuccessListener {
+            FirebaseAuth.getInstance().signOut()
+            activity.successfulLogout()
+        }.addOnFailureListener { e ->
+            Log.e(activity.javaClass.simpleName, "Error logging out user", e)
+            Toast.makeText(activity, "Sorry, we can't log you out!", Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -63,7 +63,6 @@ open class BaseActivity : AppCompatActivity() {
     val userReference = fireStore.collection("Users")
     val storageReference = FirebaseStorage.getInstance()
     var fireStoreClass: FireStoreClass = FireStoreClass()
-    var saveImageToInternalStorage: Uri? = null
     var selectedImageFileUri: Uri? = null
     var profileImageURL: String? = ""
 
@@ -78,48 +77,12 @@ open class BaseActivity : AppCompatActivity() {
         setContentView(view)
     }
 
-    private fun choosePhotoFromGallery() {
-        Dexter.withContext(this).withPermissions(
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ).withListener(object: MultiplePermissionsListener {
-            override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
-                if (report!!.areAllPermissionsGranted()) {
-                    val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                    startActivityForResult(galleryIntent, GALLERY)
-                }
-            }
-
-            override fun onPermissionRationaleShouldBeShown(permissions: MutableList<PermissionRequest>?, token: PermissionToken?) {
-                showRationalDialogForPermissions()
-            }
-        }).onSameThread().check()
-    }
-
     fun isLocationEnabled(): Boolean {
         val locationManager: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(
             LocationManager.NETWORK_PROVIDER)
     }
 
-    private fun takePhotoWithCamera() {
-        Dexter.withContext(this).withPermissions(
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.CAMERA
-        ).withListener(object: MultiplePermissionsListener {
-            override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
-                if (report!!.areAllPermissionsGranted()) {
-                    val galleryIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                    startActivityForResult(galleryIntent, CAMERA)
-                }
-            }
-
-            override fun onPermissionRationaleShouldBeShown(permissions: MutableList<PermissionRequest>?, token: PermissionToken?) {
-                showRationalDialogForPermissions()
-            }
-        }).onSameThread().check()
-    }
 
     fun saveImageToInternalStorage(bitmap: Bitmap): Uri {
         val wrapper = ContextWrapper(applicationContext)
@@ -135,7 +98,7 @@ open class BaseActivity : AppCompatActivity() {
             e.printStackTrace()
         }
 
-        return Uri.parse(file.absolutePath)
+        return Uri.fromFile(file.absoluteFile)
     }
 
     fun getFileExtension(uri: Uri?): String? {
@@ -173,20 +136,6 @@ open class BaseActivity : AppCompatActivity() {
 
     fun hideProgressDialog() {
         progressDialog.dismiss()
-    }
-
-    fun showPictureDialog() {
-        val pictureDialog = AlertDialog.Builder(this)
-        pictureDialog.setTitle("Select Action")
-        val pictureDialogItems = arrayOf("Select photo from gallery", "Capture photo from camera")
-        pictureDialog.setItems(pictureDialogItems) {
-                _, which ->
-            when(which) {
-                0 -> choosePhotoFromGallery()
-                1 -> takePhotoWithCamera()
-            }
-        }
-        pictureDialog.show()
     }
 
     fun getCurrentID(): String {

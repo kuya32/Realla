@@ -3,6 +3,7 @@ package com.macode.realla.activities
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -16,6 +17,7 @@ import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Looper
+import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
 import android.view.View
@@ -25,8 +27,10 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.Toolbar
 import com.bumptech.glide.Glide
 import com.google.android.gms.location.*
+import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -73,8 +77,12 @@ class MyProfileActivity : BaseActivity(), View.OnClickListener {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
+        if (!Places.isInitialized()) {
+            Places.initialize(this@MyProfileActivity, resources.getString(R.string.google_api_key))
+        }
+
         binding.myProfileImage.setOnClickListener(this)
-        binding.locationEditInput.setOnClickListener(this)
+        binding.myProfileLocationEditInput.setOnClickListener(this)
         binding.myProfileGetCurrentLocationButton.setOnClickListener(this)
         binding.myProfileSaveButton.setOnClickListener(this)
     }
@@ -84,21 +92,35 @@ class MyProfileActivity : BaseActivity(), View.OnClickListener {
             R.id.myProfileImage -> {
                 showPictureDialog()
             }
-//            R.id.locationEditInput -> {
-//
-//            }
+            // TODO: Include Google Places API, but first figure out why the functionality to enter an address is not working
+            R.id.myProfileLocationEditInput -> {
+                try {
+                    val fields = listOf(
+                        Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS
+                    )
+                    val intent = Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields).build(this@MyProfileActivity)
+                    startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
             R.id.myProfileGetCurrentLocationButton -> {
                 if (!isLocationEnabled()) {
-                    Toast.makeText(this, "Your location provider is turned off. Please turn it on!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Your location provider is turned off. Please turn it on!",
+                        Toast.LENGTH_SHORT
+                    ).show()
                     val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                     startActivity(intent)
                 } else {
                     Dexter.withContext(this).withPermissions(
                         Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_COARSE_LOCATION
-                    ).withListener(object: MultiplePermissionsListener {
+                    ).withListener(object : MultiplePermissionsListener {
                         override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
                             if (report!!.areAllPermissionsGranted()) {
+                                println("Made it to request new location method")
                                 requestNewLocationData()
                             }
                         }
@@ -137,8 +159,8 @@ class MyProfileActivity : BaseActivity(), View.OnClickListener {
                             ImageDecoder.createSource(this.contentResolver,
                                 selectedImageFileUri!!
                             ))
-                        saveImageToInternalStorage = saveImageToInternalStorage(selectedImageBitmap)
-                        Log.i("Saved image: ", "Path :: $saveImageToInternalStorage")
+                        selectedImageFileUri = saveImageToInternalStorage(selectedImageBitmap)
+                        Log.i("Saved image: ", "Path :: $selectedImageFileUri")
                         Glide
                             .with(this)
                             .load(selectedImageFileUri)
@@ -153,11 +175,11 @@ class MyProfileActivity : BaseActivity(), View.OnClickListener {
             } else if (requestCode == CAMERA) {
                 if (data != null) {
                     val bitmap: Bitmap = data.extras!!.get("data") as Bitmap
-                    saveImageToInternalStorage = saveImageToInternalStorage(bitmap)
-                    Log.i("Saved image: ", "Path :: $saveImageToInternalStorage")
+                    selectedImageFileUri = saveImageToInternalStorage(bitmap)
+                    Log.i("Saved image: ", "Path :: $selectedImageFileUri")
                     Glide
                         .with(this)
-                        .load(bitmap)
+                        .load(selectedImageFileUri)
                         .centerCrop()
                         .placeholder(R.drawable.person)
                         .into(binding.myProfileImage)
@@ -166,11 +188,63 @@ class MyProfileActivity : BaseActivity(), View.OnClickListener {
                 val place: Place = Autocomplete.getPlaceFromIntent(data!!)
                 val regex = "([^,]+), ([A-Z]{2,})".toRegex()
                 val matchResult = regex.find(place.address.toString())
-                binding.locationEditInput.setText(matchResult?.value.toString())
+                binding.myProfileLocationEditInput.setText(matchResult?.value.toString())
                 latitude = place.latLng!!.latitude
                 longitude = place.latLng!!.longitude
             }
         }
+    }
+
+
+    private fun showPictureDialog() {
+        val pictureDialog = AlertDialog.Builder(this)
+        pictureDialog.setTitle("Select Action")
+        val pictureDialogItems = arrayOf("Select photo from gallery", "Capture photo from camera")
+        pictureDialog.setItems(pictureDialogItems) {
+                _, which ->
+            when(which) {
+                0 -> choosePhotoFromGallery()
+                1 -> takePhotoWithCamera()
+            }
+        }
+        pictureDialog.show()
+    }
+
+    private fun choosePhotoFromGallery() {
+        Dexter.withContext(this).withPermissions(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ).withListener(object: MultiplePermissionsListener {
+            override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+                if (report!!.areAllPermissionsGranted()) {
+                    val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    startActivityForResult(galleryIntent, GALLERY)
+                }
+            }
+
+            override fun onPermissionRationaleShouldBeShown(permissions: MutableList<PermissionRequest>?, token: PermissionToken?) {
+                showRationalDialogForPermissions()
+            }
+        }).onSameThread().check()
+    }
+
+    private fun takePhotoWithCamera() {
+        Dexter.withContext(this).withPermissions(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA
+        ).withListener(object: MultiplePermissionsListener {
+            override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+                if (report!!.areAllPermissionsGranted()) {
+                    val galleryIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                    startActivityForResult(galleryIntent, CAMERA)
+                }
+            }
+
+            override fun onPermissionRationaleShouldBeShown(permissions: MutableList<PermissionRequest>?, token: PermissionToken?) {
+                showRationalDialogForPermissions()
+            }
+        }).onSameThread().check()
     }
 
     fun updateMyProfileUserDetails(loggedInUser: User) {
@@ -186,7 +260,7 @@ class MyProfileActivity : BaseActivity(), View.OnClickListener {
         binding.lastNameEditInput.setText(loggedInUser.lastName)
         binding.usernameEditInput.setText(loggedInUser.username)
         binding.phoneEditInput.setText(loggedInUser.phone)
-        binding.locationEditInput.setText("${loggedInUser.cityLocation}, ${loggedInUser.stateLocation}")
+        binding.myProfileLocationEditInput.setText("${loggedInUser.cityLocation}, ${loggedInUser.stateLocation}")
         binding.occupationEditInput.setText(loggedInUser.occupation)
     }
 
@@ -195,9 +269,11 @@ class MyProfileActivity : BaseActivity(), View.OnClickListener {
         val locationRequest = LocationRequest.create().apply {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
             interval = 1000
-            numUpdates = 1
+            numUpdates = 2
         }
+        println("Made it to request location updates")
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallBack, Looper.myLooper())
+        println("Request location updates has been called")
     }
 
     private val locationCallBack = object: LocationCallback() {
@@ -205,14 +281,19 @@ class MyProfileActivity : BaseActivity(), View.OnClickListener {
             super.onLocationResult(result)
             val lastLocation: Location = result.lastLocation
             latitude = lastLocation.latitude
+            println(latitude.toString())
             Log.i("Current Latitude", "$latitude")
             longitude = lastLocation.longitude
+            println(longitude.toString())
             Log.i("Current Longitude", "$longitude")
 
+            println("Made it to set address")
             setAddressToLocationInput()
+            println("Set address has been called")
         }
     }
 
+    @SuppressLint("SetTextI18n")
     fun setAddressToLocationInput() = runBlocking {
         CoroutineScope(Dispatchers.Main).launch {
             try {
@@ -221,8 +302,10 @@ class MyProfileActivity : BaseActivity(), View.OnClickListener {
                     val address: Address = addressList[0]
                     val cityName = address.locality
                     val stateName = address.adminArea
+                    println(cityName + stateName)
                     hideProgressDialog()
-                    binding.locationEditInput.setText("$cityName, $stateName")
+                    binding.myProfileLocationEditInput.setText("$cityName, $stateName")
+                    println("location has been updated!")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -238,7 +321,7 @@ class MyProfileActivity : BaseActivity(), View.OnClickListener {
     private fun uploadUserImage() {
         showProgressDialog("Uploading user image...")
         if (selectedImageFileUri != null) {
-            val storageRef = storageReference.reference.child("ProfileImage ${System.currentTimeMillis()}.${getFileExtension(selectedImageFileUri)}")
+            val storageRef = storageReference.reference.child("ProfileImage${System.currentTimeMillis()}.png")
             storageRef.putFile(selectedImageFileUri!!).addOnSuccessListener { taskSnapshot ->
                 taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
                     profileImageURL = uri.toString()
@@ -269,13 +352,17 @@ class MyProfileActivity : BaseActivity(), View.OnClickListener {
             userHashMap["username"] = binding.usernameEditInput.text.toString()
         }
 
-        if (binding.locationEditInput.text.toString() != userDetails.cityLocation) {
-            val cityName = binding.locationEditInput.text!!.substring(0, binding.locationEditInput.text!!.indexOf(","))
+        if (binding.phoneEditInput.text.toString() != userDetails.phone) {
+            userHashMap["phone"] = binding.phoneEditInput.text.toString()
+        }
+
+        if (binding.myProfileLocationEditInput.text.toString() != userDetails.cityLocation) {
+            val cityName = binding.myProfileLocationEditInput.text!!.substring(0, binding.myProfileLocationEditInput.text!!.indexOf(","))
             userHashMap["cityLocation"] = cityName
         }
 
-        if (binding.locationEditInput.text.toString() != userDetails.stateLocation) {
-            val stateName = binding.locationEditInput.text!!.substring(binding.locationEditInput.text!!.indexOf(",") + 2)
+        if (binding.myProfileLocationEditInput.text.toString() != userDetails.stateLocation) {
+            val stateName = binding.myProfileLocationEditInput.text!!.substring(binding.myProfileLocationEditInput.text!!.indexOf(",") + 2)
             userHashMap["stateLocation"] = stateName
         }
 

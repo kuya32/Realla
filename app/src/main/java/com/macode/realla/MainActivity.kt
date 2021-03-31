@@ -79,12 +79,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 startActivityForResult(Intent(this, MyProfileActivity::class.java), MY_PROFILE_REQUEST_CODE)
             }
             R.id.logOut -> {
-                userReference.document(getCurrentID()).
-                FirebaseAuth.getInstance().signOut()
-                val intent = Intent(this, IntroActivity::class.java)
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                startActivity(intent)
-                finish()
+                fireStoreClass.logoutUser(this)
             }
         }
         binding.mainDrawerLayout.closeDrawer(GravityCompat.START)
@@ -103,5 +98,12 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             .into(navProfileImage)
 
         navUsername.text = loggedInUser.username
+    }
+
+    fun successfulLogout() {
+        val intent = Intent(this, IntroActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
+        finish()
     }
 }
