@@ -18,8 +18,8 @@
         android:layout_marginBottom="5dp"
         android:layout_marginStart="20dp"
         android:src="@drawable/person"
-        app:civ_border_color="@color/pebble"
-        app:civ_border_width="5dp"
+        app:civ_border_color="@color/black"
+        app:civ_border_width="3dp"
         app:layout_constraintBottom_toTopOf="@+id/navUsername"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -28,8 +28,8 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="Username"
-        android:textColorHint="@color/mist"
-        android:textColor="@color/mist"
+        android:textColorHint="@color/black"
+        android:textColor="@color/black"
         android:textSize="20sp"
         android:gravity="center"
         android:textStyle="bold"

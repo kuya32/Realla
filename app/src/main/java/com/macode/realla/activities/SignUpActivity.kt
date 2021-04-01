@@ -86,9 +86,4 @@ class SignUpActivity : BaseActivity() {
             }
         }
     }
-
-    private fun getDate(): String {
-        val sdf = SimpleDateFormat("MM/dd/yyyy hh:mm:ss", Locale.US)
-        return sdf.format(Date())
-    }
 }

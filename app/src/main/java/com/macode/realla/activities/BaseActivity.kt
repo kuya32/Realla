@@ -1,5 +1,6 @@
 package com.macode.realla.activities
 
+import android.Manifest
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.ActivityNotFoundException
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.MediaStore
 import android.provider.Settings
 import android.webkit.MimeTypeMap
 import android.widget.TextView
@@ -27,6 +29,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
+import com.karumi.dexter.Dexter
+import com.karumi.dexter.MultiplePermissionsReport
+import com.karumi.dexter.PermissionToken
+import com.karumi.dexter.listener.PermissionRequest
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import com.macode.realla.R
 import com.macode.realla.databinding.ActivityBaseBinding
 import com.macode.realla.firebase.FireStoreClass
@@ -35,6 +42,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
+import java.text.SimpleDateFormat
 import java.util.*
 
 open class BaseActivity : AppCompatActivity() {
@@ -44,6 +52,7 @@ open class BaseActivity : AppCompatActivity() {
         const val CAMERA = 2
         const val PLACE_AUTOCOMPLETE_REQUEST_CODE = 3
         const val MY_PROFILE_REQUEST_CODE = 11
+        const val CREATE_BOARD_REQUEST_CODE = 12
         const val IMAGE_DIRECTORY = "ReallaAppImages"
     }
 
@@ -56,6 +65,7 @@ open class BaseActivity : AppCompatActivity() {
     var fireStoreClass: FireStoreClass = FireStoreClass()
     var selectedImageFileUri: Uri? = null
     var profileImageURL: String? = ""
+    var boardImageURL: String? = ""
 
     private var doubleBackToExitPressedOnce = false
 
@@ -74,8 +84,59 @@ open class BaseActivity : AppCompatActivity() {
             LocationManager.NETWORK_PROVIDER)
     }
 
+    fun showPictureDialog() {
+        val pictureDialog = AlertDialog.Builder(this)
+        pictureDialog.setTitle("Select Action")
+        val pictureDialogItems = arrayOf("Select photo from gallery", "Capture photo from camera")
+        pictureDialog.setItems(pictureDialogItems) {
+                _, which ->
+            when(which) {
+                0 -> choosePhotoFromGallery()
+                1 -> takePhotoWithCamera()
+            }
+        }
+        pictureDialog.show()
+    }
 
-    fun saveImageToInternalStorage(bitmap: Bitmap): Uri {
+    private fun choosePhotoFromGallery() {
+        Dexter.withContext(this).withPermissions(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ).withListener(object: MultiplePermissionsListener {
+            override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+                if (report!!.areAllPermissionsGranted()) {
+                    val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    startActivityForResult(galleryIntent, GALLERY)
+                }
+            }
+
+            override fun onPermissionRationaleShouldBeShown(permissions: MutableList<PermissionRequest>?, token: PermissionToken?) {
+                showRationalDialogForPermissions()
+            }
+        }).onSameThread().check()
+    }
+
+    private fun takePhotoWithCamera() {
+        Dexter.withContext(this).withPermissions(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA
+        ).withListener(object: MultiplePermissionsListener {
+            override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+                if (report!!.areAllPermissionsGranted()) {
+                    val galleryIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                    startActivityForResult(galleryIntent, CAMERA)
+                }
+            }
+
+            override fun onPermissionRationaleShouldBeShown(permissions: MutableList<PermissionRequest>?, token: PermissionToken?) {
+                showRationalDialogForPermissions()
+            }
+        }).onSameThread().check()
+    }
+
+
+    fun convertToImageFile(bitmap: Bitmap): Uri {
         val wrapper = ContextWrapper(applicationContext)
         var file = wrapper.getDir(IMAGE_DIRECTORY, Context.MODE_PRIVATE)
         file = File(file, "${UUID.randomUUID()}.png")
@@ -136,6 +197,11 @@ open class BaseActivity : AppCompatActivity() {
             currentUserID = currentFirebaseUser.uid
         }
         return currentUserID
+    }
+
+    fun getDate(): String {
+        val sdf = SimpleDateFormat("MM/dd/yyyy hh:mm:ss", Locale.US)
+        return sdf.format(Date())
     }
 
     fun doubleBackToExit() {

@@ -16,7 +16,7 @@
         <gradient
             android:angle="360"
             android:startColor="@color/lightAutumnFoliage"
-            android:endColor="@color/darkAutumnFoliage"
+            android:endColor="@color/autumnFoliage"
             android:type="linear" />
         <stroke android:color="@color/grey" android:width="1dp" />
         <corners android:radius="10dp" />

@@ -6,17 +6,15 @@ import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import com.macode.realla.activities.LogInActivity
-import com.macode.realla.activities.MainActivity
-import com.macode.realla.activities.SignUpActivity
-import com.macode.realla.activities.MyProfileActivity
-import com.macode.realla.activities.SetUpActivity
+import com.macode.realla.activities.*
+import com.macode.realla.models.Board
 import com.macode.realla.models.User
 
 class FireStoreClass {
 
     private val fireStore = FirebaseFirestore.getInstance()
     private val userReference = fireStore.collection("Users")
+    private val boardReference = fireStore.collection("Boards")
 
     fun registerUser(activity: SignUpActivity, userInfo: User) {
         userReference.document(getCurrentUserID()).set(userInfo, SetOptions.merge()).addOnCompleteListener { task ->
@@ -28,7 +26,19 @@ class FireStoreClass {
         }
     }
 
-    fun establishUser(activity: Activity) {
+    fun createBoard(activity: CreateBoardActivity, boardInfo: Board) {
+        boardReference.document().set(boardInfo, SetOptions.merge()).addOnSuccessListener {
+            Log.i(activity.javaClass.simpleName, "Board created successfully")
+            Toast.makeText(activity, "Board created successfully!", Toast.LENGTH_SHORT).show()
+            activity.boardCreatedSuccessfully()
+        }.addOnFailureListener { e ->
+            activity.hideProgressDialog()
+            Log.e(activity.javaClass.simpleName, "Board failed to create", e)
+            Toast.makeText(activity, "Sorry, board failed to create!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun establishUser(activity: Activity, readBoardsList: Boolean = false) {
         userReference.document(getCurrentUserID()).get().addOnSuccessListener { document ->
             val loggedInUser = document.toObject(User::class.java)
             when (activity) {
@@ -36,12 +46,13 @@ class FireStoreClass {
                     userReference.document(getCurrentUserID()).update("status", "Online").addOnSuccessListener {
                         activity.logInSuccess(loggedInUser!!)
                     }.addOnFailureListener { e ->
+                        activity.hideProgressDialog()
                         Log.e(activity.javaClass.simpleName, "Error logging in user", e)
                         Toast.makeText(activity, "Sorry, we can't log you in!", Toast.LENGTH_SHORT).show()
                     }
                 }
                 is MainActivity -> {
-                    activity.updateNavigationUserDetails(loggedInUser!!)
+                    activity.updateNavigationUserDetails(loggedInUser!!, readBoardsList)
                 }
                 is MyProfileActivity -> {
                     activity.updateMyProfileUserDetails(loggedInUser!!)
@@ -60,6 +71,22 @@ class FireStoreClass {
                 }
             }
             Log.e("LogInUser", "Error writing document", e)
+        }
+    }
+
+    fun getBoardList(activity: MainActivity) {
+        boardReference.whereArrayContains("assignedTo", getCurrentUserID()).get().addOnSuccessListener { document ->
+            Log.i(activity.javaClass.simpleName, document.documents.toString())
+            val boardList: ArrayList<Board> = ArrayList()
+            for (i in document.documents) {
+                val board = i.toObject(Board::class.java)!!
+                board.documentID = i.id
+                boardList.add(board)
+            }
+            activity.populateBoardListToUI(boardList)
+        }.addOnFailureListener { e ->
+            activity.hideProgressDialog()
+            Log.e(activity.javaClass.simpleName, "Error while uploading boards to recycler view", e)
         }
     }
 
@@ -110,5 +137,15 @@ class FireStoreClass {
             currentUserID = currentUser.uid
         }
         return currentUserID
+    }
+
+    fun getBoardDetails(activity: TaskListActivity, documentID: String) {
+        boardReference.document(documentID).get().addOnSuccessListener { document ->
+            Log.i(activity.javaClass.simpleName, document.toString())
+            activity.boardDetails(document.toObject(Board::class.java)!!)
+        }.addOnFailureListener { e ->
+            activity.hideProgressDialog()
+            Log.e(activity.javaClass.simpleName, "Error while uploading boards to recycler view", e)
+        }
     }
 }

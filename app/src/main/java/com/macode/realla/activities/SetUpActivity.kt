@@ -149,70 +149,12 @@ class SetUpActivity : BaseActivity(), View.OnClickListener {
                 } else if (binding.occupationEditInput.text.isNullOrEmpty()) {
                     showError(binding.occupationInput, "Please provide a occupation!")
                 } else {
-                    val cityName = binding.setUpLocationEditInput.text!!.substring(0, binding.setUpLocationEditInput.text!!.indexOf(","))
-                    val stateName = binding.setUpLocationEditInput.text!!.substring(binding.setUpLocationEditInput.text!!.indexOf(",") + 2)
-                    userDetails.image = selectedImageFileUri.toString()
-                    userDetails.username = binding.usernameEditInput.text.toString()
-                    userDetails.phone = binding.phoneEditInput.text.toString()
-                    userDetails.cityLocation = cityName
-                    userDetails.stateLocation = stateName
-                    userDetails.occupation = binding.occupationEditInput.text.toString()
-                    fireStoreClass.updateUser(this, userDetails)
+                    uploadUserInformationToFirebase()
                 }
             }
         }
     }
 
-    private fun showPictureDialog() {
-        val pictureDialog = AlertDialog.Builder(this)
-        pictureDialog.setTitle("Select Action")
-        val pictureDialogItems = arrayOf("Select photo from gallery", "Capture photo from camera")
-        pictureDialog.setItems(pictureDialogItems) {
-                _, which ->
-            when(which) {
-                0 -> choosePhotoFromGallery()
-                1 -> takePhotoWithCamera()
-            }
-        }
-        pictureDialog.show()
-    }
-
-    private fun choosePhotoFromGallery() {
-        Dexter.withContext(this).withPermissions(
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ).withListener(object: MultiplePermissionsListener {
-            override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
-                if (report!!.areAllPermissionsGranted()) {
-                    val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                    startActivityForResult(galleryIntent, GALLERY)
-                }
-            }
-
-            override fun onPermissionRationaleShouldBeShown(permissions: MutableList<PermissionRequest>?, token: PermissionToken?) {
-                showRationalDialogForPermissions()
-            }
-        }).onSameThread().check()
-    }
-
-    private fun takePhotoWithCamera() {
-        Dexter.withContext(this).withPermissions(
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.CAMERA
-        ).withListener(object: MultiplePermissionsListener {
-            override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
-                if (report!!.areAllPermissionsGranted()) {
-                    val galleryIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                    startActivityForResult(galleryIntent, CAMERA)
-                }
-            }
-
-            override fun onPermissionRationaleShouldBeShown(permissions: MutableList<PermissionRequest>?, token: PermissionToken?) {
-                showRationalDialogForPermissions()
-            }
-        }).onSameThread().check()
-    }
 
     @SuppressLint("MissingPermission")
     private fun requestNewLocationData() {
@@ -271,7 +213,7 @@ class SetUpActivity : BaseActivity(), View.OnClickListener {
                             ImageDecoder.createSource(this.contentResolver,
                             selectedImageFileUri!!
                         ))
-                        selectedImageFileUri = saveImageToInternalStorage(selectedImageBitmap)
+                        selectedImageFileUri = convertToImageFile(selectedImageBitmap)
                         Log.i("Saved image: ", "Path :: $selectedImageFileUri")
                         Glide
                             .with(this)
@@ -287,7 +229,7 @@ class SetUpActivity : BaseActivity(), View.OnClickListener {
             } else if (requestCode == CAMERA) {
                 if (data != null) {
                     val bitmap: Bitmap = data.extras!!.get("data") as Bitmap
-                    selectedImageFileUri = saveImageToInternalStorage(bitmap)
+                    selectedImageFileUri = convertToImageFile(bitmap)
                     Log.i("Saved image: ", "Path :: $selectedImageFileUri")
                     Glide
                         .with(this)
@@ -307,6 +249,30 @@ class SetUpActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
+    private fun uploadUserInformationToFirebase() {
+        if (selectedImageFileUri != null) {
+            val storageRef = storageReference.reference.child("ProfileImage${System.currentTimeMillis()}.png")
+            storageRef.putFile(selectedImageFileUri!!).addOnSuccessListener { taskSnapshot ->
+                Log.i("ProfileImageURL", taskSnapshot.metadata!!.reference!!.downloadUrl.toString())
+                taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
+                    Log.i("DownloadableImageURL", uri.toString())
+                    profileImageURL = uri.toString()
+                    val cityName = binding.setUpLocationEditInput.text!!.substring(0, binding.setUpLocationEditInput.text!!.indexOf(","))
+                    val stateName = binding.setUpLocationEditInput.text!!.substring(binding.setUpLocationEditInput.text!!.indexOf(",") + 2)
+                    userDetails.image = profileImageURL.toString()
+                    userDetails.username = binding.usernameEditInput.text.toString()
+                    userDetails.phone = binding.phoneEditInput.text.toString()
+                    userDetails.cityLocation = cityName
+                    userDetails.stateLocation = stateName
+                    userDetails.occupation = binding.occupationEditInput.text.toString()
+                    fireStoreClass.updateUser(this, userDetails)
+                }
+            }.addOnFailureListener { exception ->
+                Toast.makeText(this@SetUpActivity, exception.message, Toast.LENGTH_LONG).show()
+                hideProgressDialog()
+            }
+        }
+    }
 
     fun updateUserSuccess() {
         hideProgressDialog()
