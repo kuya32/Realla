@@ -13,8 +13,6 @@ import android.graphics.drawable.ColorDrawable
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
-import android.location.LocationManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Looper
@@ -41,7 +39,6 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import com.macode.realla.*
 import com.macode.realla.R
 import com.macode.realla.databinding.ActivitySetUpBinding
-import com.macode.realla.models.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

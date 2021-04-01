@@ -1,7 +1,8 @@
-package com.macode.realla
+package com.macode.realla.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.macode.realla.R
 
 class ForgotPasswordActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

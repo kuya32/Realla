@@ -1,7 +1,5 @@
-package com.macode.realla
+package com.macode.realla.activities
 
-import android.Manifest
-import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.ActivityNotFoundException
@@ -16,29 +14,21 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.provider.MediaStore
 import android.provider.Settings
 import android.webkit.MimeTypeMap
 import android.widget.TextView
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import com.google.android.gms.tasks.Task
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
-import com.karumi.dexter.Dexter
-import com.karumi.dexter.MultiplePermissionsReport
-import com.karumi.dexter.PermissionToken
-import com.karumi.dexter.listener.PermissionRequest
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener
-import com.macode.realla.BaseActivity.Companion.GALLERY
-import com.macode.realla.activities.SetUpActivity
+import com.macode.realla.R
 import com.macode.realla.databinding.ActivityBaseBinding
-import com.macode.realla.databinding.CustomDialogProgressBinding
 import com.macode.realla.firebase.FireStoreClass
 import com.macode.realla.models.User
 import java.io.File
@@ -60,6 +50,7 @@ open class BaseActivity : AppCompatActivity() {
     private lateinit var binding: ActivityBaseBinding
     var userDetails: User = User()
     private val fireStore = FirebaseFirestore.getInstance()
+    val currentFirebaseUser: FirebaseUser? = FirebaseAuth.getInstance().currentUser
     val userReference = fireStore.collection("Users")
     val storageReference = FirebaseStorage.getInstance()
     var fireStoreClass: FireStoreClass = FireStoreClass()
@@ -139,10 +130,10 @@ open class BaseActivity : AppCompatActivity() {
     }
 
     fun getCurrentID(): String {
-        val currentUser = FirebaseAuth.getInstance().currentUser
+        currentFirebaseUser
         var currentUserID = ""
-        if (currentUser != null) {
-            currentUserID = currentUser.uid
+        if (currentFirebaseUser != null) {
+            currentUserID = currentFirebaseUser.uid
         }
         return currentUserID
     }

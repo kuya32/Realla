@@ -6,6 +6,10 @@
             android:icon="@drawable/nav_person"
             android:title="My Profile" />
         <item
+            android:id="@+id/navAccountSettings"
+            android:icon="@drawable/account_settings"
+            android:title="Account Settings" />
+        <item
             android:id="@+id/logOut"
             android:icon="@drawable/logout"
             android:title="LogOut" />

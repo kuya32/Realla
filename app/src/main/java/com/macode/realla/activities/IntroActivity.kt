@@ -1,4 +1,4 @@
-package com.macode.realla
+package com.macode.realla.activities
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity

@@ -1,4 +1,4 @@
-package com.macode.realla
+package com.macode.realla.activities
 
 import android.content.Intent
 import android.graphics.Color
@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.widget.Toolbar
 import com.google.firebase.auth.FirebaseAuth
-import com.macode.realla.activities.SetUpActivity
+import com.macode.realla.R
 import com.macode.realla.databinding.ActivityLogInBinding
 import com.macode.realla.models.User
 

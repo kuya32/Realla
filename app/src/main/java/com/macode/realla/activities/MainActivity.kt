@@ -1,24 +1,17 @@
-package com.macode.realla
+package com.macode.realla.activities
 
 import android.app.Activity
 import android.content.Intent
-import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.MenuItem
 import android.widget.TextView
-import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
-import com.google.firebase.auth.FirebaseAuth
-import com.macode.realla.activities.MyProfileActivity
+import com.macode.realla.R
 import com.macode.realla.databinding.ActivityMainBinding
-import com.macode.realla.databinding.NavHeaderMainBinding
 import com.macode.realla.models.User
 import de.hdodenhof.circleimageview.CircleImageView
 
@@ -77,6 +70,9 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         when (item.itemId) {
             R.id.navMyProfile -> {
                 startActivityForResult(Intent(this, MyProfileActivity::class.java), MY_PROFILE_REQUEST_CODE)
+            }
+            R.id.navAccountSettings -> {
+                startActivity(Intent(this, AccountSettingsActivity::class.java))
             }
             R.id.logOut -> {
                 fireStoreClass.logoutUser(this)

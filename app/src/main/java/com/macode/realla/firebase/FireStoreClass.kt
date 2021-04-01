@@ -1,16 +1,14 @@
 package com.macode.realla.firebase
 
 import android.app.Activity
-import android.content.Intent
 import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import com.macode.realla.IntroActivity
-import com.macode.realla.LogInActivity
-import com.macode.realla.MainActivity
-import com.macode.realla.SignUpActivity
+import com.macode.realla.activities.LogInActivity
+import com.macode.realla.activities.MainActivity
+import com.macode.realla.activities.SignUpActivity
 import com.macode.realla.activities.MyProfileActivity
 import com.macode.realla.activities.SetUpActivity
 import com.macode.realla.models.User
