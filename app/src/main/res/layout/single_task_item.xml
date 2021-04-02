@@ -229,10 +229,10 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <EditText
-                        android:id="@+id/editCardName"
+                        android:id="@+id/cardName"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:hint="List Name"
+                        android:hint="Card Name"
                         android:inputType="text"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/confirmCardNameButton"
