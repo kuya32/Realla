@@ -157,7 +157,7 @@ class FireStoreClass {
             Log.i(activity.javaClass.simpleName, document.toString())
             val board = document.toObject(Board::class.java)!!
             board.documentID = document.id
-            activity.boardDetails(board)
+            activity.boardDetailsUI(board)
         }.addOnFailureListener { e ->
             activity.hideProgressDialog()
             Log.e(activity.javaClass.simpleName, "Error while uploading boards to recycler view", e)

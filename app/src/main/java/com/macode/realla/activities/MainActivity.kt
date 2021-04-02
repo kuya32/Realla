@@ -17,7 +17,7 @@ import com.bumptech.glide.Glide
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.macode.realla.R
-import com.macode.realla.adapters.BoardsItemAdapter
+import com.macode.realla.adapters.BoardItemsAdapter
 import com.macode.realla.databinding.ActivityMainBinding
 import com.macode.realla.models.Board
 import com.macode.realla.models.User
@@ -141,10 +141,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             boardRecyclerView.layoutManager = LinearLayoutManager(this)
             boardRecyclerView.setHasFixedSize(true)
 
-            val adapter = BoardsItemAdapter(this, boardList)
+            val adapter = BoardItemsAdapter(this, boardList)
             boardRecyclerView.adapter = adapter
 
-            adapter.setOnClickListener(object: BoardsItemAdapter.OnClickListener {
+            adapter.setOnClickListener(object: BoardItemsAdapter.OnClickListener {
                 override fun onClick(position: Int, model: Board) {
                     val intent = Intent(this@MainActivity, TaskListActivity::class.java)
                     intent.putExtra("documentID", model.documentID)

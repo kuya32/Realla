@@ -1,7 +1,6 @@
 package com.macode.realla.adapters
 
 import android.content.Context
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -10,8 +9,8 @@ import com.macode.realla.R
 import com.macode.realla.databinding.SingleBoardItemBinding
 import com.macode.realla.models.Board
 
-open class BoardsItemAdapter (private val context: Context, private var list: ArrayList<Board>):
-    RecyclerView.Adapter<BoardsItemAdapter.ViewHolder>() {
+open class BoardItemsAdapter (private val context: Context, private var list: ArrayList<Board>):
+    RecyclerView.Adapter<BoardItemsAdapter.ViewHolder>() {
 
     private var onClickListener: OnClickListener? = null
 

@@ -9,13 +9,12 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.textfield.TextInputLayout
 import com.macode.realla.activities.TaskListActivity
 import com.macode.realla.databinding.SingleTaskItemBinding
 import com.macode.realla.models.Task
 
-open class TaskListItemAdapter(private val context: Context, private var list: ArrayList<Task>):
-    RecyclerView.Adapter<TaskListItemAdapter.ViewHolder>() {
+open class TaskListItemsAdapter(private val context: Context, private var list: ArrayList<Task>):
+    RecyclerView.Adapter<TaskListItemsAdapter.ViewHolder>() {
 
     inner class ViewHolder(val binding: SingleTaskItemBinding): RecyclerView.ViewHolder(binding.root)
 
@@ -78,12 +77,33 @@ open class TaskListItemAdapter(private val context: Context, private var list: A
                         context.updateTaskList(position, listName, model)
                     }
                 } else {
-                    showError(binding.taskListName, "Please enter list name!")
+                    showError(binding.editTaskListName, "Please enter list name!")
                 }
             }
 
             binding.deleteListNameButton.setOnClickListener {
                 alertDialogForDeleteTaskList(position, model.title)
+            }
+
+            binding.addCardButton.setOnClickListener {
+                binding.addCardButton.visibility = View.GONE
+                binding.addCardCardView.visibility = View.VISIBLE
+            }
+
+            binding.closeCardNameButton.setOnClickListener {
+                binding.addCardButton.visibility = View.VISIBLE
+                binding.addCardCardView.visibility = View.GONE
+            }
+
+            binding.confirmCardNameButton.setOnClickListener {
+                val cardName = binding.cardName.text.toString()
+                if (cardName.isNotEmpty()) {
+                    if (context is TaskListActivity) {
+                        context.addCardToTaskList(position, cardName)
+                    }
+                } else {
+                    showError(binding.cardName, "Please enter card name!")
+                }
             }
         }
     }

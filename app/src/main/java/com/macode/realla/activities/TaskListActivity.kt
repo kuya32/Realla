@@ -2,15 +2,14 @@ package com.macode.realla.activities
 
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.macode.realla.R
-import com.macode.realla.adapters.TaskListItemAdapter
+import com.macode.realla.adapters.TaskListItemsAdapter
 import com.macode.realla.databinding.ActivityTaskListBinding
 import com.macode.realla.models.Board
+import com.macode.realla.models.Card
 import com.macode.realla.models.Task
 
 class TaskListActivity : BaseActivity() {
@@ -45,7 +44,7 @@ class TaskListActivity : BaseActivity() {
         }
     }
 
-    fun boardDetails(board: Board) {
+    fun boardDetailsUI(board: Board) {
         boardDetails = board
         hideProgressDialog()
         setUpToolbar()
@@ -56,7 +55,7 @@ class TaskListActivity : BaseActivity() {
         binding.taskListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         binding.taskListRecyclerView.setHasFixedSize(true)
 
-        val adapter = TaskListItemAdapter(this, board.taskList)
+        val adapter = TaskListItemsAdapter(this, board.taskList)
         binding.taskListRecyclerView.adapter = adapter
     }
 
@@ -87,6 +86,31 @@ class TaskListActivity : BaseActivity() {
         boardDetails.taskList.removeAt(position)
         boardDetails.taskList.removeAt(boardDetails.taskList.size - 1)
         showProgressDialog("Deleting task...")
+        fireStoreClass.addUpdateTaskList(this, boardDetails)
+    }
+
+    fun addCardToTaskList(position: Int, cardName: String) {
+        boardDetails.taskList.removeAt(boardDetails.taskList.size - 1)
+
+        val cardAssignedUsersList: ArrayList<String> = ArrayList()
+        cardAssignedUsersList.add(fireStoreClass.getCurrentUserID())
+
+        val card = Card(getDate(), cardName, fireStoreClass.getCurrentUserID(), cardAssignedUsersList)
+
+        val cardsList = boardDetails.taskList[position].cards
+        cardsList.add(card)
+
+        val task = Task(
+            boardDetails.taskList[position].dateTaskCreated,
+            boardDetails.taskList[position].title,
+            boardDetails.taskList[position].createdBy,
+            cardsList
+        )
+
+        boardDetails.taskList[position] = task
+
+        showProgressDialog("Creating card...")
+
         fireStoreClass.addUpdateTaskList(this, boardDetails)
     }
 }
