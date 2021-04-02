@@ -131,7 +131,7 @@ class FireStoreClass {
     }
 
     fun getCurrentUserID(): String {
-        var currentUser = FirebaseAuth.getInstance().currentUser
+        val currentUser = FirebaseAuth.getInstance().currentUser
         var currentUserID = ""
         if (currentUser != null) {
             currentUserID = currentUser.uid
@@ -142,7 +142,9 @@ class FireStoreClass {
     fun getBoardDetails(activity: TaskListActivity, documentID: String) {
         boardReference.document(documentID).get().addOnSuccessListener { document ->
             Log.i(activity.javaClass.simpleName, document.toString())
-            activity.boardDetails(document.toObject(Board::class.java)!!)
+            val board = document.toObject(Board::class.java)!!
+            board.documentID = document.id
+            activity.boardDetails(board)
         }.addOnFailureListener { e ->
             activity.hideProgressDialog()
             Log.e(activity.javaClass.simpleName, "Error while uploading boards to recycler view", e)
