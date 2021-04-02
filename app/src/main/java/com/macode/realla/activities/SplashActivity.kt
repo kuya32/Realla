@@ -1,17 +1,14 @@
-package com.macode.realla
+package com.macode.realla.activities
 
 import android.content.Intent
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.WindowInsets
 import android.view.WindowManager
-import com.macode.realla.activities.SetUpActivity
-import com.macode.realla.firebase.FireStoreClass
-import com.macode.realla.models.User
+import com.macode.realla.R
 
 class SplashActivity : BaseActivity() {
 
