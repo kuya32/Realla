@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.macode.realla.activities.TaskListActivity
 import com.macode.realla.databinding.SingleTaskItemBinding
@@ -105,6 +106,22 @@ open class TaskListItemsAdapter(private val context: Context, private var list: 
                     showError(binding.cardName, "Please enter card name!")
                 }
             }
+
+            binding.cardListRecyclerView.layoutManager = LinearLayoutManager(context)
+            binding.cardListRecyclerView.setHasFixedSize(true)
+
+            val adapter = CardListItemsAdapter(context, model.cards)
+            binding.cardListRecyclerView.adapter = adapter
+
+            adapter.setOnClickListener(
+                object : CardListItemsAdapter.OnClickListener {
+                    override fun onClick(cardPosition: Int) {
+                        if (context is TaskListActivity) {
+                            context.cardDetails(position, cardPosition)
+                        }
+                    }
+                }
+            )
         }
     }
 
@@ -121,6 +138,7 @@ open class TaskListItemsAdapter(private val context: Context, private var list: 
         layout.requestFocus()
     }
 
+//    TODO: Make the alert dialog look cleaner
     private fun alertDialogForDeleteTaskList(position: Int, title: String) {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Warning!")

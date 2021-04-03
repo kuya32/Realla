@@ -19,7 +19,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/CustomNoActionBarTheme">
-        <activity android:name=".activities.TaskListActivity"></activity>
+        <activity android:name=".activities.CardDetailsActivity"></activity>
+        <activity android:name=".activities.MembersActivity" />
+        <activity android:name=".activities.TaskListActivity" />
         <activity android:name=".activities.CreateBoardActivity" />
         <activity android:name=".activities.AccountSettingsActivity" />
         <activity android:name=".activities.MyProfileActivity" />

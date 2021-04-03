@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background6"
+    tools:context=".activities.CardDetailsActivity">
+
+    <include
+        android:id="@+id/cardDetailsToolbar"
+        layout="@layout/main_toolbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardNameCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="15dp"
+        android:layout_margin="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardDetailsToolbar">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/cardNameInput"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                android:textColorHint="@color/darkAutumnFoliage"
+                app:boxStrokeColor="@color/darkAutumnFoliage"
+                app:hintTextColor="@color/darkAutumnFoliage"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/cardNameEditInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Card Name"
+                    android:inputType="text"
+                    android:textColor="@color/darkAutumnFoliage" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardDetailsCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="15dp"
+        android:layout_margin="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardNameCardView">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/labelColorTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Label Color"
+                android:layout_margin="20dp"
+                android:textColor="@color/lightAutumnFoliage"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/selectColorButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/box_border"
+                android:hint="Select Color"
+                android:layout_marginTop="5dp"
+                android:padding="10dp"
+                android:textColor="@color/darkAutumnFoliage"
+                android:textColorHint="@color/darkAutumnFoliage"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="@+id/labelColorTitle"
+                app:layout_constraintStart_toStartOf="@+id/labelColorTitle"
+                app:layout_constraintTop_toBottomOf="@+id/labelColorTitle" />
+
+            <TextView
+                android:id="@+id/membersTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Members"
+                android:layout_margin="20dp"
+                android:textColor="@color/lightAutumnFoliage"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/selectColorButton" />
+
+            <TextView
+                android:id="@+id/selectMembersButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/box_border"
+                android:hint="Select Members"
+                android:padding="10dp"
+                android:textColor="@color/darkAutumnFoliage"
+                android:textColorHint="@color/darkAutumnFoliage"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="@+id/membersTitle"
+                app:layout_constraintStart_toStartOf="@+id/membersTitle"
+                app:layout_constraintTop_toBottomOf="@+id/membersTitle" />
+
+            <TextView
+                android:id="@+id/dueDateTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Due Date"
+                android:layout_margin="20dp"
+                android:textColor="@color/lightAutumnFoliage"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/selectMembersButton" />
+
+            <TextView
+                android:id="@+id/selectDueDateButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/box_border"
+                android:hint="Select Due Date"
+                android:padding="10dp"
+                android:textColor="@color/darkAutumnFoliage"
+                android:textColorHint="@color/darkAutumnFoliage"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="@+id/dueDateTitle"
+                app:layout_constraintStart_toStartOf="@+id/dueDateTitle"
+                app:layout_constraintTop_toBottomOf="@+id/dueDateTitle" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/updateCardDetailsButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/shape_blue_button_rounded"
+                android:padding="10dp"
+                android:foreground="?attr/selectableItemBackground"
+                android:text="Update"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/selectDueDateButton"
+                app:layout_constraintStart_toStartOf="@+id/selectDueDateButton"
+                app:layout_constraintTop_toBottomOf="@+id/selectDueDateButton" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
