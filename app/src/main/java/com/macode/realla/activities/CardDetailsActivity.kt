@@ -2,14 +2,18 @@ package com.macode.realla.activities
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.DatePicker
+import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.GridLayoutManager
 import com.azeesoft.lib.colorpicker.ColorPickerDialog
@@ -19,6 +23,9 @@ import com.macode.realla.databinding.ActivityCardDetailsBinding
 import com.macode.realla.dialogs.MembersListDialog
 import com.macode.realla.models.*
 import java.lang.StringBuilder
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class CardDetailsActivity : BaseActivity() {
     private lateinit var binding: ActivityCardDetailsBinding
@@ -27,7 +34,9 @@ class CardDetailsActivity : BaseActivity() {
     private var taskListPosition = -1
     private var cardPosition = -1
     private var selectedHexColor: String = ""
+    private var selectedDueDateMilliSeconds: String = ""
 
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCardDetailsBinding.inflate(layoutInflater)
@@ -51,6 +60,10 @@ class CardDetailsActivity : BaseActivity() {
 
         binding.selectMembersButton.setOnClickListener {
             membersListDialog()
+        }
+
+        binding.selectDueDateButton.setOnClickListener {
+            showDatePickerDialog()
         }
 
         setUpSelectedMembersList()
@@ -95,6 +108,10 @@ class CardDetailsActivity : BaseActivity() {
             binding.selectColorButton.setBackgroundColor(Color.parseColor(cardColor.toString()))
             binding.selectColorButton.text = ""
         }
+        selectedDueDateMilliSeconds = boardDetails.taskList[taskListPosition].cards[cardPosition].dueDate
+        if (selectedDueDateMilliSeconds != "") {
+            binding.selectDueDateButton.text = selectedDueDateMilliSeconds
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -123,7 +140,8 @@ class CardDetailsActivity : BaseActivity() {
             binding.cardNameEditInput.text.toString(),
             boardDetails.taskList[taskListPosition].cards[cardPosition].createdBy,
             boardDetails.taskList[taskListPosition].cards[cardPosition].assignedTo,
-            selectedHexColor
+            selectedHexColor,
+            selectedDueDateMilliSeconds
         )
 
         val taskList: ArrayList<Task> = boardDetails.taskList
@@ -252,6 +270,28 @@ class CardDetailsActivity : BaseActivity() {
             binding.selectMembersButton.visibility = View.VISIBLE
             binding.selectedMembersListRecyclerView.visibility = View.GONE
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun showDatePickerDialog() {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        val dpd = DatePickerDialog(
+            this,
+            DatePickerDialog.OnDateSetListener { view, year, month, day ->
+                val dayOfMonth = if (day < 10) "0$day" else "$day"
+                val monthOfYear = if ((month + 1) < 10) "0${month + 1}" else "${month + 1}"
+                val selectedDate = "$monthOfYear/$dayOfMonth/$year"
+                binding.selectDueDateButton.text = selectedDate
+                selectedDueDateMilliSeconds = selectedDate
+            },
+            year,
+            month,
+            day
+        )
+        dpd.show()
     }
 
     private fun Int.toDP(): Int = (this / Resources.getSystem().displayMetrics.density).toInt()
