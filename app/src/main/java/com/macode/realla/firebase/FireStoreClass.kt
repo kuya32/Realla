@@ -8,6 +8,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
 import com.macode.realla.activities.*
 import com.macode.realla.models.Board
+import com.macode.realla.models.Task
 import com.macode.realla.models.User
 
 class FireStoreClass {
@@ -159,7 +160,7 @@ class FireStoreClass {
         }
     }
 
-    fun getAssignedMembersListDetails(activity: MembersActivity, assignedTo: ArrayList<String>) {
+    fun getAssignedMembersListDetails(activity: Activity, assignedTo: ArrayList<String>) {
         userReference.whereIn("id", assignedTo).get().addOnSuccessListener { document ->
             Log.i(activity.javaClass.simpleName, document.documents.toString())
 
@@ -169,9 +170,24 @@ class FireStoreClass {
                 usersList.add(user)
             }
 
-            activity.setUpMemberList(usersList)
+            when (activity) {
+                is MembersActivity -> {
+                    activity.setUpMemberList(usersList)
+                }
+                is TaskListActivity -> {
+                    activity.boardMembersDetailsList(usersList)
+                }
+            }
+
         }.addOnFailureListener { e ->
-            activity.hideProgressDialog()
+            when (activity) {
+                is MembersActivity -> {
+                    activity.hideProgressDialog()
+                }
+                is TaskListActivity -> {
+                    activity.hideProgressDialog()
+                }
+            }
             Log.e(activity.javaClass.simpleName, "Error loading members list", e)
         }
     }

@@ -16,11 +16,13 @@ import com.macode.realla.databinding.ActivityTaskListBinding
 import com.macode.realla.models.Board
 import com.macode.realla.models.Card
 import com.macode.realla.models.Task
+import com.macode.realla.models.User
 
 class TaskListActivity : BaseActivity() {
     private lateinit var binding: ActivityTaskListBinding
     private lateinit var boardDetails: Board
     private lateinit var boardDocumentID: String
+    lateinit var assignedMembersDetailList: ArrayList<User>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,14 +73,8 @@ class TaskListActivity : BaseActivity() {
         hideProgressDialog()
         setUpToolbar()
 
-        val addTaskList = Task("Add List")
-        board.taskList.add(addTaskList)
-
-        binding.taskListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        binding.taskListRecyclerView.setHasFixedSize(true)
-
-        val adapter = TaskListItemsAdapter(this, board.taskList)
-        binding.taskListRecyclerView.adapter = adapter
+        showProgressDialog("Setting up board...")
+        fireStoreClass.getAssignedMembersListDetails(this, boardDetails.assignedTo)
     }
 
     fun addUpdateTaskListSuccess() {
@@ -141,7 +137,23 @@ class TaskListActivity : BaseActivity() {
         intent.putExtra("boardDetails", boardDetails)
         intent.putExtra("taskListItemPosition", taskListPosition)
         intent.putExtra("cardListItemPosition", cardPosition)
+        intent.putExtra("boardMembersList", assignedMembersDetailList)
         startActivityForResult(intent, CARD_DETAILS_REQUEST_CODE)
+    }
+
+    fun boardMembersDetailsList(list: ArrayList<User>) {
+        assignedMembersDetailList = list
+        hideProgressDialog()
+
+        // TODO: Figure out why we need to add an extra task card
+        val addTaskList = Task("Add List")
+        boardDetails.taskList.add(addTaskList)
+
+        binding.taskListRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        binding.taskListRecyclerView.setHasFixedSize(true)
+
+        val adapter = TaskListItemsAdapter(this, boardDetails.taskList)
+        binding.taskListRecyclerView.adapter = adapter
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

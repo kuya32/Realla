@@ -3,6 +3,7 @@
     <string name="underlineLogIn"><u>Log In</u></string>
     <string name="underlineSignUp"><u>Sign Up</u></string>
     <string name="sensitiveTitle"><u>Sensitive Account Information</u></string>
+    <string name="memberNames"><b>Member Names:</b></string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

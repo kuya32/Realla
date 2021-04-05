@@ -8,14 +8,17 @@ data class Card (
     val name: String = "",
     val createdBy: String = "",
     val assignedTo: ArrayList<String> = ArrayList(),
-    val labelColor: String = ""
+    val labelColor: String = "",
+    val dueDate: String = ""
 ): Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString()!!,
         parcel.readString()!!,
         parcel.readString()!!,
         parcel.createStringArrayList()!!,
+        parcel.readString()!!,
         parcel.readString()!!
+
     ) {
     }
 
@@ -25,6 +28,7 @@ data class Card (
         parcel.writeString(createdBy)
         parcel.writeStringList(assignedTo)
         parcel.writeString(labelColor)
+        parcel.writeString(dueDate)
     }
 
     override fun describeContents(): Int {

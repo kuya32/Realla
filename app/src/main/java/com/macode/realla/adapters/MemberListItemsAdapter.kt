@@ -2,6 +2,7 @@ package com.macode.realla.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -34,7 +35,23 @@ open class MemberListItemsAdapter(private val context: Context, private val list
                 .into(binding.memberProfileImage)
 
             "${model.firstName} ${model.lastName}".also { binding.memberName.text = it }
-            binding.memberemail.text = model.email
+            binding.memberEmail.text = model.email
+
+            if (model.selected) {
+                binding.selectedMember.visibility = View.VISIBLE
+            } else {
+                binding.selectedMember.visibility = View.GONE
+            }
+
+            itemView.setOnClickListener {
+                if (onClickListener != null) {
+                    if (model.selected) {
+                        onClickListener!!.onClick(position, model, "UnSelect")
+                    } else {
+                        onClickListener!!.onClick(position, model, "Select")
+                    }
+                }
+            }
         }
     }
 
@@ -47,7 +64,7 @@ open class MemberListItemsAdapter(private val context: Context, private val list
     }
 
     interface OnClickListener {
-        fun onClick(position: Int, model: Board)
+        fun onClick(position: Int, user: User, action: String)
     }
 
 }

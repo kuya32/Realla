@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     app:cardCornerRadius="15dp"
+    android:layout_margin="10dp"
+    android:backgroundTint="@color/lightPebble"
     android:orientation="vertical">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -12,8 +15,8 @@
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/memberProfileImage"
-            android:layout_width="75dp"
-            android:layout_height="75dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:src="@drawable/person"
             app:civ_border_color="@color/black"
             app:civ_border_width="1dp"
@@ -24,38 +27,50 @@
 
         <TextView
             android:id="@+id/memberName"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:gravity="center"
             android:hint="Member Name"
             android:textColor="@color/black"
             android:textColorHint="@color/black"
-            android:textSize="20sp"
+            android:textSize="14sp"
             android:textStyle="bold"
-            android:gravity="center"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="15dp"
-            app:layout_constraintBottom_toTopOf="@+id/memberemail"
-            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="20dp"
+            app:layout_constraintBottom_toTopOf="@+id/memberEmail"
+            app:layout_constraintEnd_toStartOf="@+id/selectedMember"
             app:layout_constraintStart_toEndOf="@+id/memberProfileImage"
             app:layout_constraintTop_toTopOf="@+id/memberProfileImage"
             app:layout_constraintVertical_chainStyle="packed" />
 
         <TextView
-            android:id="@+id/memberemail"
-            android:layout_width="0dp"
+            android:id="@+id/memberEmail"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:gravity="center"
             android:hint="Email"
             android:textColor="@color/black"
             android:textColorHint="@color/black"
-            android:textSize="16sp"
-            android:gravity="center"
+            android:textSize="12sp"
             android:textStyle="italic"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="15dp"
+            android:layout_marginEnd="20dp"
             app:layout_constraintBottom_toBottomOf="@+id/memberProfileImage"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/selectedMember"
             app:layout_constraintStart_toEndOf="@+id/memberProfileImage"
             app:layout_constraintTop_toBottomOf="@+id/memberName" />
+
+        <ImageView
+            android:id="@+id/selectedMember"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/selected_member"
+            android:layout_margin="20dp"
+            app:layout_constraintBottom_toBottomOf="@+id/memberEmail"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/memberName"
+            android:visibility="gone"
+            tools:visibility="visible" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 <!--    TODO: Create a divider for the members list-->
