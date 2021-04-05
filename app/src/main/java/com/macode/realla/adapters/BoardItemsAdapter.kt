@@ -52,7 +52,4 @@ open class BoardItemsAdapter (private val context: Context, private var list: Ar
     interface OnClickListener {
         fun onClick(position: Int, model: Board)
     }
-
-
-
 }

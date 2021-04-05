@@ -53,10 +53,13 @@ open class BaseActivity : AppCompatActivity() {
         const val PLACE_AUTOCOMPLETE_REQUEST_CODE = 3
         const val MY_PROFILE_REQUEST_CODE = 11
         const val CREATE_BOARD_REQUEST_CODE = 12
+        const val MEMBERS_REQUEST_CODE = 13
+        const val CARD_DETAILS_REQUEST_CODE = 14
         const val IMAGE_DIRECTORY = "ReallaAppImages"
     }
 
     private lateinit var binding: ActivityBaseBinding
+    var anyChangesMade: Boolean = false
     var userDetails: User = User()
     private val fireStore = FirebaseFirestore.getInstance()
     val currentFirebaseUser: FirebaseUser? = FirebaseAuth.getInstance().currentUser
