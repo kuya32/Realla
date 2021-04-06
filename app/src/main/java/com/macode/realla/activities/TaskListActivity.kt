@@ -156,6 +156,15 @@ class TaskListActivity : BaseActivity() {
         binding.taskListRecyclerView.adapter = adapter
     }
 
+    fun updatedCardsInTaskList(taskListPosition: Int, cards: ArrayList<Card>) {
+        boardDetails.taskList.removeAt(boardDetails.taskList.size - 1)
+
+        boardDetails.taskList[taskListPosition].cards = cards
+
+        showProgressDialog("Moving cards...")
+        fireStoreClass.addUpdateTaskList(this, boardDetails)
+    }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_task_list, menu)
         return super.onCreateOptionsMenu(menu)

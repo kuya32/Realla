@@ -31,6 +31,7 @@ import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.messaging.FirebaseMessaging
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -46,11 +47,11 @@ import kotlinx.coroutines.runBlocking
 import java.io.IOException
 import java.lang.Exception
 import java.util.*
+import kotlin.collections.HashMap
 
 class SetUpActivity : BaseActivity(), View.OnClickListener {
     private lateinit var binding: ActivitySetUpBinding
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var progressDialog: Dialog
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
     private var phoneNumberFormattingTextWatcher: PhoneNumberFormattingTextWatcher = PhoneNumberFormattingTextWatcher()
@@ -251,24 +252,35 @@ class SetUpActivity : BaseActivity(), View.OnClickListener {
 
     private fun uploadUserInformationToFirebase() {
         if (selectedImageFileUri != null) {
+            val tokenRef = FirebaseMessaging.getInstance().token
             val storageRef = storageReference.reference.child("ProfileImage${System.currentTimeMillis()}.png")
-            storageRef.putFile(selectedImageFileUri!!).addOnSuccessListener { taskSnapshot ->
-                Log.i("ProfileImageURL", taskSnapshot.metadata!!.reference!!.downloadUrl.toString())
-                taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
-                    Log.i("DownloadableImageURL", uri.toString())
-                    profileImageURL = uri.toString()
-                    val cityName = binding.setUpLocationEditInput.text!!.substring(0, binding.setUpLocationEditInput.text!!.indexOf(","))
-                    val stateName = binding.setUpLocationEditInput.text!!.substring(binding.setUpLocationEditInput.text!!.indexOf(",") + 2)
-                    userDetails.image = profileImageURL.toString()
-                    userDetails.username = binding.usernameEditInput.text.toString()
-                    userDetails.phone = binding.phoneEditInput.text.toString()
-                    userDetails.cityLocation = cityName
-                    userDetails.stateLocation = stateName
-                    userDetails.occupation = binding.occupationEditInput.text.toString()
-                    fireStoreClass.updateUser(this, userDetails)
+            tokenRef.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    fcmToken = task.result
+                    storageRef.putFile(selectedImageFileUri!!).addOnSuccessListener { taskSnapshot ->
+                        Log.i("ProfileImageURL", taskSnapshot.metadata!!.reference!!.downloadUrl.toString())
+                        taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
+                            Log.i("DownloadableImageURL", uri.toString())
+                            profileImageURL = uri.toString()
+                            val cityName = binding.setUpLocationEditInput.text!!.substring(0, binding.setUpLocationEditInput.text!!.indexOf(","))
+                            val stateName = binding.setUpLocationEditInput.text!!.substring(binding.setUpLocationEditInput.text!!.indexOf(",") + 2)
+                            val userHashMap = HashMap<String, Any>()
+                            userHashMap["image"] = profileImageURL.toString()
+                            userHashMap["username"] = binding.usernameEditInput.text.toString()
+                            userHashMap["phone"] = binding.phoneEditInput.text.toString()
+                            userHashMap["cityLocation"] = cityName
+                            userHashMap["stateLocation"] = stateName
+                            userHashMap["occupation"] = binding.occupationEditInput.text.toString()
+                            userHashMap["fcmToken"] = fcmToken
+                            fireStoreClass.updatedUserProfileData(this, userHashMap)
+                        }
+                    }.addOnFailureListener { exception ->
+                        Toast.makeText(this@SetUpActivity, exception.message, Toast.LENGTH_LONG).show()
+                        hideProgressDialog()
+                    }
                 }
-            }.addOnFailureListener { exception ->
-                Toast.makeText(this@SetUpActivity, exception.message, Toast.LENGTH_LONG).show()
+            }.addOnFailureListener { e ->
+                Toast.makeText(this@SetUpActivity, e.message, Toast.LENGTH_LONG).show()
                 hideProgressDialog()
             }
         }

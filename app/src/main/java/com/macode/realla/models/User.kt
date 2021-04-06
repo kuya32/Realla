@@ -17,7 +17,7 @@ data class User (
     var cityLocation: String = "",
     var stateLocation: String = "",
     var occupation: String = "",
-    var deviceToken: String = "",
+    var fcmToken: String = "",
     var selected: Boolean = false,
     var status: String = "Online"
 ): Parcelable {
@@ -53,7 +53,7 @@ data class User (
         parcel.writeString(cityLocation)
         parcel.writeString(stateLocation)
         parcel.writeString(occupation)
-        parcel.writeString(deviceToken)
+        parcel.writeString(fcmToken)
         parcel.writeBoolean(selected)
         parcel.writeString(status)
     }

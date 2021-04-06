@@ -56,9 +56,11 @@ open class BaseActivity : AppCompatActivity() {
         const val MEMBERS_REQUEST_CODE = 13
         const val CARD_DETAILS_REQUEST_CODE = 14
         const val IMAGE_DIRECTORY = "ReallaAppImages"
+        const val NOTI = "Notification"
     }
 
     private lateinit var binding: ActivityBaseBinding
+    lateinit var fcmToken: String
     var anyChangesMade: Boolean = false
     var userDetails: User = User()
     private val fireStore = FirebaseFirestore.getInstance()
