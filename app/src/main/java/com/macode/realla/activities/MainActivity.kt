@@ -1,7 +1,9 @@
 package com.macode.realla.activities
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
@@ -16,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
+import com.google.firebase.messaging.FirebaseMessaging
 import com.macode.realla.R
 import com.macode.realla.adapters.BoardItemsAdapter
 import com.macode.realla.databinding.ActivityMainBinding
@@ -27,6 +30,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     private lateinit var binding: ActivityMainBinding
     private lateinit var fab: FloatingActionButton
     private lateinit var usersFullName: String
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +41,22 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         setUpActionBar()
 
         binding.navView.setNavigationItemSelectedListener(this@MainActivity)
+
+        sharedPreferences = this.getSharedPreferences("reallaPref", Context.MODE_PRIVATE)
+
+        val tokenUpdated = sharedPreferences.getBoolean("fcmUpdatedToken", false)
+
+        if (tokenUpdated) {
+            showProgressDialog("Loading user...")
+            fireStoreClass.establishUser(this, true)
+        } else {
+            FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    fcmToken = task.result
+                    updateFCMToken(fcmToken)
+                }
+            }
+        }
 
         fireStoreClass.establishUser(this, true)
 
@@ -95,6 +115,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
                 startActivity(Intent(this, AccountSettingsActivity::class.java))
             }
             R.id.logOut -> {
+                sharedPreferences.edit().clear().apply()
                 fireStoreClass.logoutUser(this)
             }
         }
@@ -104,6 +125,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     fun updateNavigationUserDetails(loggedInUser: User, readBoardsList: Boolean) {
+        hideProgressDialog()
         val navUsername = findViewById<TextView>(R.id.navUsername)
         val navProfileImage = findViewById<CircleImageView>(R.id.navProfileImage)
         Glide
@@ -157,5 +179,21 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             boardRecyclerView.visibility = View.GONE
             noBoardsAvailable.visibility = View.VISIBLE
         }
+    }
+
+    fun tokenUpdateSuccess() {
+        hideProgressDialog()
+        val editor: SharedPreferences.Editor = sharedPreferences.edit()
+        editor.putBoolean("fcmTokenUpdated", true)
+        editor.apply()
+        showProgressDialog("Loading user...")
+        fireStoreClass.establishUser(this, true)
+    }
+
+    private fun updateFCMToken(token: String) {
+        val userHashMap = HashMap<String, Any>()
+        userHashMap["fcmToken"] = token
+        showProgressDialog("Updating user info...")
+        fireStoreClass.updatedUserProfileData(this, userHashMap)
     }
 }

@@ -6,6 +6,7 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,9 +16,22 @@ import com.macode.realla.databinding.ActivityMembersBinding
 import com.macode.realla.databinding.DialogSearchMemberBinding
 import com.macode.realla.models.Board
 import com.macode.realla.models.User
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import org.json.JSONObject
+import java.io.*
+import java.lang.Exception
+import java.lang.StringBuilder
+import java.net.HttpURLConnection
+import java.net.SocketTimeoutException
+import java.net.URL
+import kotlin.coroutines.CoroutineContext
 
 
 class MembersActivity : BaseActivity() {
+
+
     private lateinit var binding: ActivityMembersBinding
     private lateinit var dialogBinding: DialogSearchMemberBinding
     private lateinit var boardDetails: Board
@@ -89,6 +103,7 @@ class MembersActivity : BaseActivity() {
         assignedMembersList.add(user)
         anyChangesMade = true
         setUpMemberList(assignedMembersList)
+        sendNotificationToUser(boardDetails.name, user.fcmToken)
     }
 
     private fun dialogSearchMember() {
@@ -119,6 +134,73 @@ class MembersActivity : BaseActivity() {
             setResult(Activity.RESULT_OK)
         }
         super.onBackPressed()
+    }
+
+    @Suppress("BlockingMethodInNonBlockingContext")
+    private fun sendNotificationToUser(boardName: String, token: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            var connection: HttpURLConnection? = null
+            try {
+                val url = URL("https://fcm.googleapis.com/fcm/send")
+                connection = url.openConnection() as HttpURLConnection
+                connection.doOutput = true
+                connection.doInput = true
+                connection.instanceFollowRedirects = false
+                connection.requestMethod = "POST"
+
+                connection.setRequestProperty("Content-Type", "application/json")
+                connection.setRequestProperty("charset", "utf-8")
+                connection.setRequestProperty("Accept", "application/json")
+
+                connection.setRequestProperty("authorization", "key=AAAABDxQeQw:APA91bEfxWQ49HaEtwjgXORukp47M3hzL9wx6sYGQ5VeXoJeGWezeHPOamCHPXlRYIfHhHXWKrmaV2T8dAVKvASSBWdjXGk_ot3nn83lXiIahWtAWrx_SPC9rrxcags9xOxCqTmuo-Hf")
+
+                connection.useCaches = false
+                val wr = DataOutputStream(connection.outputStream)
+                val jsonRequest = JSONObject()
+                val dataObject = JSONObject()
+                dataObject.put("title", "Assigned to the board $boardName")
+                dataObject.put("message", "You have been assigned to the Board by ${assignedMembersList[0].username}")
+
+                jsonRequest.put("data", dataObject)
+                jsonRequest.put("to", token)
+
+                wr.writeBytes(jsonRequest.toString())
+                wr.flush()
+                wr.close()
+
+                val httpResult: Int = connection.responseCode
+                if (httpResult == HttpURLConnection.HTTP_OK) {
+                    val inputStream = connection.inputStream
+
+                    val reader = BufferedReader(InputStreamReader(inputStream))
+
+                    val sb = StringBuilder()
+                    var line: String?
+                    try {
+                        while (reader.readLine().also {line = it} != null) {
+                            sb.append(line + "\n")
+                        }
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    } finally {
+                        try {
+                            inputStream.close()
+                        } catch (e: IOException) {
+                            e.printStackTrace()
+                        }
+                    }
+                    Log.i(NOTI, sb.toString())
+                } else {
+                    Log.i(NOTI, connection.responseMessage)
+                }
+            } catch (e: SocketTimeoutException) {
+                Log.i(NOTI, "Connection Timeout")
+            } catch (e: Exception) {
+                Log.i(NOTI, "Error: ${e.message}")
+            } finally {
+                connection?.disconnect()
+            }
+        }
     }
 
     private fun Int.toDP(): Int = (this / Resources.getSystem().displayMetrics.density).toInt()

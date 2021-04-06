@@ -63,31 +63,31 @@ class FireStoreClass {
         }
     }
 
-    fun updateUser(activity: SetUpActivity, userInfo: User) {
-        userReference.document(getCurrentUserID()).update(mapOf(
-            "image" to userInfo.image,
-            "username" to userInfo.username,
-            "phone" to userInfo.phone,
-            "cityLocation" to userInfo.cityLocation,
-            "stateLocation" to userInfo.stateLocation,
-            "occupation" to userInfo.occupation
-        )).addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                Toast.makeText(activity, "User updated to Firebase", Toast.LENGTH_SHORT).show()
-                activity.updateUserSuccess()
-            } else {
-                Toast.makeText(activity, "User was not updated to Firebase", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    fun updatedUserProfileData(activity: MyProfileActivity, userHashMap: HashMap<String, Any>) {
+    fun updatedUserProfileData(activity: Activity, userHashMap: HashMap<String, Any>) {
         userReference.document(getCurrentUserID()).update(userHashMap).addOnSuccessListener {
             Log.i(activity.javaClass.simpleName, "Profile data updated successfully")
             Toast.makeText(activity, "Profile data updated successfully", Toast.LENGTH_SHORT).show()
-            activity.profileUpdatedSuccess()
+            when (activity) {
+                is MainActivity -> {
+                    activity.tokenUpdateSuccess()
+                }
+                is SetUpActivity -> {
+                    activity.updateUserSuccess()
+                }
+                is MyProfileActivity -> {
+                    activity.profileUpdatedSuccess()
+                }
+            }
+
         }.addOnFailureListener { e ->
-            activity.hideProgressDialog()
+            when (activity) {
+                is MainActivity -> {
+                    activity.hideProgressDialog()
+                }
+                is MyProfileActivity -> {
+                    activity.hideProgressDialog()
+                }
+            }
             Log.e(activity.javaClass.simpleName, "Error while updating profile", e)
             Toast.makeText(activity, "Error while updating profile", Toast.LENGTH_SHORT).show()
         }
