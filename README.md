@@ -8,7 +8,7 @@
   ![Github License](https://img.shields.io/badge/license-MIT-green)
 
   <p align="center">
-    Realla
+    Realla is an organizational tool to collaborate on projects, assign tasks and regulate performance. A primitive Trello clone.
   </p>
 </p>
 

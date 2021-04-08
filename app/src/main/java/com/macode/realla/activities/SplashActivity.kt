@@ -27,9 +27,7 @@ class SplashActivity : BaseActivity() {
         }
 
         Handler(Looper.myLooper()!!).postDelayed({
-
             var currentUserID = fireStoreClass.getCurrentUserID()
-
             if (currentUserID.isNotEmpty()) {
                 userReference.document(currentUserID).get().addOnSuccessListener { document ->
                     if (document.exists()) {
@@ -47,6 +45,7 @@ class SplashActivity : BaseActivity() {
                         }
                     } else {
                         Log.d("UserDocument", "No such document")
+                        startActivity(Intent(this, IntroActivity::class.java))
                     }
                 }
 

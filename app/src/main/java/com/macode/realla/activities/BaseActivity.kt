@@ -64,6 +64,7 @@ open class BaseActivity : AppCompatActivity() {
     var anyChangesMade: Boolean = false
     var userDetails: User = User()
     private val fireStore = FirebaseFirestore.getInstance()
+    val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     val currentFirebaseUser: FirebaseUser? = FirebaseAuth.getInstance().currentUser
     val userReference = fireStore.collection("Users")
     val storageReference = FirebaseStorage.getInstance()
@@ -74,7 +75,7 @@ open class BaseActivity : AppCompatActivity() {
 
     private var doubleBackToExitPressedOnce = false
 
-    private lateinit var progressDialog: Dialog
+    private var progressDialog: Dialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -158,9 +159,9 @@ open class BaseActivity : AppCompatActivity() {
         return Uri.fromFile(file.absoluteFile)
     }
 
-    fun getFileExtension(uri: Uri?): String? {
-        return MimeTypeMap.getSingleton().getExtensionFromMimeType(contentResolver.getType(uri!!))
-    }
+//    fun getFileExtension(uri: Uri?): String? {
+//        return MimeTypeMap.getSingleton().getExtensionFromMimeType(contentResolver.getType(uri!!))
+//    }
 
     fun showRationalDialogForPermissions() {
         AlertDialog.Builder(this).setMessage("It looks like you have turned off permission required for this feature. " +
@@ -183,16 +184,16 @@ open class BaseActivity : AppCompatActivity() {
 
     fun showProgressDialog(text: String) {
         progressDialog = Dialog(this)
-        progressDialog.setContentView(R.layout.custom_dialog_progress)
+        progressDialog!!.setContentView(R.layout.custom_dialog_progress)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            val progressText = progressDialog.requireViewById<TextView>(R.id.pleaseWaitText)
+            val progressText = progressDialog!!.requireViewById<TextView>(R.id.pleaseWaitText)
             progressText.text = text
         }
-        progressDialog.show()
+        progressDialog!!.show()
     }
 
     fun hideProgressDialog() {
-        progressDialog.dismiss()
+        progressDialog?.dismiss()
     }
 
     fun getCurrentID(): String {

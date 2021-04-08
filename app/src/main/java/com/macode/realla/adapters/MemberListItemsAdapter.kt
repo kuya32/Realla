@@ -67,4 +67,5 @@ open class MemberListItemsAdapter(private val context: Context, private val list
         fun onClick(position: Int, user: User, action: String)
     }
 
+    // TODO: Add swipe to delete member from the member list
 }

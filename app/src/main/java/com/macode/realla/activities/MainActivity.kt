@@ -83,6 +83,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val toolbar = findViewById<Toolbar>(R.id.mainToolbar)
         setSupportActionBar(toolbar)
         toolbar.setNavigationIcon(R.drawable.nav_menu)
+        toolbar.setTitleTextColor(Color.parseColor("#FFFFFFFF"))
         supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         toolbar.setNavigationOnClickListener {
@@ -139,7 +140,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         usersFullName = "${loggedInUser.firstName} ${loggedInUser.lastName}"
 
         if (readBoardsList) {
-            showProgressDialog("Loading board list...")
+//            showProgressDialog("Loading board list...")
             fireStoreClass.getBoardList(this)
         }
     }

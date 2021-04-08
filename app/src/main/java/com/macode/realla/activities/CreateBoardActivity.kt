@@ -141,7 +141,7 @@ class CreateBoardActivity : BaseActivity() {
         supportActionBar?.title = "Create Board"
         supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         supportActionBar?.setHomeAsUpIndicator(R.drawable.red_back)
-        toolbar.setTitleTextColor(Color.parseColor("#763626"))
+        toolbar.setTitleTextColor(Color.parseColor("#FFFFFFFF"))
         toolbar.setNavigationOnClickListener {
             onBackPressed()
         }

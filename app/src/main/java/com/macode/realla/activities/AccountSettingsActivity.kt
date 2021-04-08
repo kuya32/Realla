@@ -65,6 +65,7 @@ class AccountSettingsActivity : BaseActivity() {
         supportActionBar?.title = "Account Settings"
         supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         toolbar.setTitleTextColor(Color.parseColor("#FFFFFFFF"))
+        supportActionBar?.setHomeAsUpIndicator(R.drawable.back_white)
 
         toolbar.setNavigationOnClickListener {
             onBackPressed()

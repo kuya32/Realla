@@ -52,4 +52,6 @@ open class BoardItemsAdapter (private val context: Context, private var list: Ar
     interface OnClickListener {
         fun onClick(position: Int, model: Board)
     }
+
+    // TODO: Create a swipe edit and delete function for the board recycler view
 }
