@@ -7,7 +7,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.macode.realla.R
+import com.macode.realla.activities.MembersActivity
 import com.macode.realla.databinding.SingleMemberItemBinding
+import com.macode.realla.firebase.FireStoreClass
 import com.macode.realla.models.Board
 import com.macode.realla.models.User
 
@@ -15,6 +17,7 @@ open class MemberListItemsAdapter(private val context: Context, private val list
     RecyclerView.Adapter<MemberListItemsAdapter.ViewHolder>() {
 
     private var onClickListener: OnClickListener? = null
+    private val fireStoreClass: FireStoreClass = FireStoreClass()
 
     inner class ViewHolder(val binding: SingleMemberItemBinding): RecyclerView.ViewHolder(binding.root)
 
@@ -55,6 +58,14 @@ open class MemberListItemsAdapter(private val context: Context, private val list
         }
     }
 
+    fun removeAt(activity: MembersActivity, board: Board, position: Int) {
+        board.assignedTo.remove(list[position].id)
+        activity.showProgressDialog("Removing member from board...")
+        fireStoreClass.removedAssignedMemberFromBoard(activity, board, list[position])
+        list.removeAt(position)
+        notifyItemRemoved(position)
+    }
+
     override fun getItemCount(): Int {
         return list.size
     }
@@ -66,5 +77,4 @@ open class MemberListItemsAdapter(private val context: Context, private val list
     interface OnClickListener {
         fun onClick(position: Int, user: User, action: String)
     }
-
 }

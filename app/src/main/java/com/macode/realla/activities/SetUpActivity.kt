@@ -98,7 +98,6 @@ class SetUpActivity : BaseActivity(), View.OnClickListener {
             R.id.setUpProfileImage -> {
                 showPictureDialog()
             }
-            // TODO: Google Places API is not letting me enter a address
             R.id.setUpLocationEditInput -> {
                 try {
                     val fields = listOf(

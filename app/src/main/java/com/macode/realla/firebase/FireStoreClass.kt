@@ -105,6 +105,29 @@ class FireStoreClass {
         }
     }
 
+    fun editBoard(activity: CreateBoardActivity, boardHashMap: HashMap<String, Any>) {
+        val boardID: String = boardHashMap["documentID"].toString()
+        boardReference.document(boardID).update(boardHashMap).addOnSuccessListener {
+            Log.i(activity.javaClass.simpleName, "Board edited successfully")
+            Toast.makeText(activity, "Board edited successfully!", Toast.LENGTH_SHORT).show()
+            activity.boardEditedSuccessfully()
+        }.addOnFailureListener { e ->
+            activity.hideProgressDialog()
+            Log.e(activity.javaClass.simpleName, "Board failed to be edited", e)
+            Toast.makeText(activity, "Sorry, board failed to be edited!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun deleteBoard(activity: MainActivity, board: Board, string: String) {
+        boardReference.document(board.documentID).delete().addOnSuccessListener {
+            activity.boardDeleteSuccess(string)
+        }.addOnFailureListener { e ->
+            activity.hideProgressDialog()
+            Log.e(activity.javaClass.simpleName, "Error deleting board", e)
+            Toast.makeText(activity, "Sorry, we could not delete this board!", Toast.LENGTH_SHORT).show()
+        }
+    }
+
     fun getBoardList(activity: MainActivity) {
         boardReference.whereArrayContains("assignedTo", getCurrentUserID()).get().addOnSuccessListener { document ->
             Log.i(activity.javaClass.simpleName, document.documents.toString())
@@ -214,6 +237,18 @@ class FireStoreClass {
 
         boardReference.document(board.documentID).update(assignedToHashMap).addOnSuccessListener {
             activity.memberAssignedSuccess(user)
+        }.addOnFailureListener { e ->
+            activity.hideProgressDialog()
+            Log.e(activity.javaClass.simpleName, "Error while updating member list.", e)
+        }
+    }
+
+    fun removedAssignedMemberFromBoard(activity: MembersActivity, board: Board, user: User) {
+        val assignedToHashMap = HashMap<String, Any>()
+        assignedToHashMap["assignedTo"] = board.assignedTo
+
+        boardReference.document(board.documentID).update(assignedToHashMap).addOnSuccessListener {
+            activity.memberRemovedSuccess(user)
         }.addOnFailureListener { e ->
             activity.hideProgressDialog()
             Log.e(activity.javaClass.simpleName, "Error while updating member list.", e)

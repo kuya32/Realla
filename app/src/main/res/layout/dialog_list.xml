@@ -11,8 +11,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/rounded_dialog"
         app:cardCornerRadius="10dp"
-        app:cardElevation="5dp"
-        app:cardUseCompatPadding="true">
+        app:cardElevation="5dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

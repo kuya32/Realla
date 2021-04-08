@@ -8,30 +8,32 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.macode.realla.R
 import com.macode.realla.adapters.MemberListItemsAdapter
 import com.macode.realla.databinding.ActivityMembersBinding
 import com.macode.realla.databinding.DialogSearchMemberBinding
 import com.macode.realla.models.Board
 import com.macode.realla.models.User
+import com.macode.realla.utilities.SwipeToDeleteCallback
+import com.macode.realla.utilities.SwipeToEditCallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.io.*
-import java.lang.Exception
-import java.lang.StringBuilder
 import java.net.HttpURLConnection
 import java.net.SocketTimeoutException
 import java.net.URL
-import kotlin.coroutines.CoroutineContext
 
 
 class MembersActivity : BaseActivity() {
-
-
     private lateinit var binding: ActivityMembersBinding
     private lateinit var dialogBinding: DialogSearchMemberBinding
     private lateinit var boardDetails: Board
@@ -91,6 +93,16 @@ class MembersActivity : BaseActivity() {
 
         val adapter = MemberListItemsAdapter(this, list)
         binding.memberListRecyclerView.adapter = adapter
+
+        val deleteSwipeHandler = object: SwipeToDeleteCallback(this) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val adapter = binding.memberListRecyclerView.adapter as MemberListItemsAdapter
+                adapter.removeAt(this@MembersActivity, boardDetails, viewHolder.adapterPosition)
+            }
+        }
+
+        val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
+        deleteItemTouchHelper.attachToRecyclerView(binding.memberListRecyclerView)
     }
 
     fun memberDetails(user: User) {
@@ -106,25 +118,40 @@ class MembersActivity : BaseActivity() {
         sendNotificationToUser(boardDetails.name, user.fcmToken)
     }
 
+    fun memberRemovedSuccess(user: User) {
+        hideProgressDialog()
+        assignedMembersList.remove(user)
+        anyChangesMade = true
+        setUpMemberList(assignedMembersList)
+    }
+
     private fun dialogSearchMember() {
         val dialog = Dialog(this)
-        // TODO: Clicking add member item twice crashes app
-        dialog.setContentView(dialogBinding.root)
-        dialogBinding.dialogAddButton.setOnClickListener {
-            val email = dialogBinding.dialogEmailEdit.text.toString()
+        val inflater: LayoutInflater = LayoutInflater.from(this)
+        val view = inflater.inflate(R.layout.dialog_search_member, null)
+        dialog.setContentView(view)
+        val dialogAddButton = view.findViewById<TextView>(R.id.dialogAddButton)
+        val dialogCancelButton = view.findViewById<TextView>(R.id.dialogCancelButton)
+        val dialogEmailEdit = view.findViewById<TextInputEditText>(R.id.dialogEmailEdit)
+        val dialogEmail = view.findViewById<TextInputLayout>(R.id.dialogEmail)
+
+        dialogAddButton.setOnClickListener {
+            val email = dialogEmailEdit.text.toString()
 
             if (email.isNotEmpty()) {
                 dialog.dismiss()
                 showProgressDialog("Retrieving member details...")
                 fireStoreClass.getMemberDetails(this, email)
             } else {
-                showError(dialogBinding.dialogEmail, "Please enter member\'s email address!")
+                showError(dialogEmail, "Please enter member\'s email address!")
             }
         }
-        dialogBinding.dialogCancelButton.setOnClickListener {
+
+        dialogCancelButton.setOnClickListener {
             dialog.dismiss()
+
         }
-        // TODO: Make the dialog window layout more dynamic
+
         dialog.window?.setLayout(1000.toDP().toPx(), 600.toDP().toPx())
         dialog.show()
     }
@@ -152,14 +179,20 @@ class MembersActivity : BaseActivity() {
                 connection.setRequestProperty("charset", "utf-8")
                 connection.setRequestProperty("Accept", "application/json")
 
-                connection.setRequestProperty("authorization", "key=AAAABDxQeQw:APA91bEfxWQ49HaEtwjgXORukp47M3hzL9wx6sYGQ5VeXoJeGWezeHPOamCHPXlRYIfHhHXWKrmaV2T8dAVKvASSBWdjXGk_ot3nn83lXiIahWtAWrx_SPC9rrxcags9xOxCqTmuo-Hf")
+                connection.setRequestProperty(
+                    "authorization",
+                    "key=AAAABDxQeQw:APA91bEfxWQ49HaEtwjgXORukp47M3hzL9wx6sYGQ5VeXoJeGWezeHPOamCHPXlRYIfHhHXWKrmaV2T8dAVKvASSBWdjXGk_ot3nn83lXiIahWtAWrx_SPC9rrxcags9xOxCqTmuo-Hf"
+                )
 
                 connection.useCaches = false
                 val wr = DataOutputStream(connection.outputStream)
                 val jsonRequest = JSONObject()
                 val dataObject = JSONObject()
                 dataObject.put("title", "Assigned to the board $boardName")
-                dataObject.put("message", "You have been assigned to the Board by ${assignedMembersList[0].username}")
+                dataObject.put(
+                    "message",
+                    "You have been assigned to the Board by ${assignedMembersList[0].username}"
+                )
 
                 jsonRequest.put("data", dataObject)
                 jsonRequest.put("to", token)

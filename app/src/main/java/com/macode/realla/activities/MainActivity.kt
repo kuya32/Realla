@@ -13,6 +13,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -24,6 +25,8 @@ import com.macode.realla.adapters.BoardItemsAdapter
 import com.macode.realla.databinding.ActivityMainBinding
 import com.macode.realla.models.Board
 import com.macode.realla.models.User
+import com.macode.realla.utilities.SwipeToDeleteCallback
+import com.macode.realla.utilities.SwipeToEditCallback
 import de.hdodenhof.circleimageview.CircleImageView
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -74,6 +77,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
             fireStoreClass.establishUser(this)
         } else if (resultCode == Activity.RESULT_OK && requestCode == CREATE_BOARD_REQUEST_CODE) {
             fireStoreClass.getBoardList(this)
+        } else if (resultCode == Activity.RESULT_OK && requestCode == EDIT_BOARD_REQUEST_CODE) {
+            fireStoreClass.getBoardList(this)
         } else {
             Log.e("MainActivityResult", "Cancelled")
         }
@@ -83,6 +88,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         val toolbar = findViewById<Toolbar>(R.id.mainToolbar)
         setSupportActionBar(toolbar)
         toolbar.setNavigationIcon(R.drawable.nav_menu)
+        toolbar.setTitleTextColor(Color.parseColor("#FFFFFFFF"))
         supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         toolbar.setNavigationOnClickListener {
@@ -139,7 +145,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         usersFullName = "${loggedInUser.firstName} ${loggedInUser.lastName}"
 
         if (readBoardsList) {
-            showProgressDialog("Loading board list...")
+//            showProgressDialog("Loading board list...")
             fireStoreClass.getBoardList(this)
         }
     }
@@ -175,6 +181,26 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
             })
 
+            val editSwipeHandler = object: SwipeToEditCallback(this) {
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    val adapter = boardRecyclerView.adapter as BoardItemsAdapter
+                    adapter.notifyEditItem(this@MainActivity, viewHolder.adapterPosition, EDIT_BOARD_REQUEST_CODE)
+                }
+            }
+
+            val editItemTouchHelper = ItemTouchHelper(editSwipeHandler)
+            editItemTouchHelper.attachToRecyclerView(boardRecyclerView)
+
+            val deleteSwipeHandler = object: SwipeToDeleteCallback(this) {
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    val adapter = boardRecyclerView.adapter as BoardItemsAdapter
+                    adapter.removeAt(this@MainActivity, viewHolder.adapterPosition)
+                }
+            }
+
+            val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
+            deleteItemTouchHelper.attachToRecyclerView(boardRecyclerView)
+
         } else {
             boardRecyclerView.visibility = View.GONE
             noBoardsAvailable.visibility = View.VISIBLE
@@ -195,5 +221,15 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         userHashMap["fcmToken"] = token
         showProgressDialog("Updating user info...")
         fireStoreClass.updatedUserProfileData(this, userHashMap)
+    }
+
+    fun boardDeleteSuccess(string: String) {
+        val boardRecyclerView = findViewById<RecyclerView>(R.id.boardsRecyclerView)
+        val noBoardsAvailable = findViewById<TextView>(R.id.noBoardsAvailableText)
+        hideProgressDialog()
+        if (string == "noBoards") {
+            boardRecyclerView.visibility = View.GONE
+            noBoardsAvailable.visibility = View.VISIBLE
+        }
     }
 }

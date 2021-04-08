@@ -19,14 +19,14 @@
     </style>
 
     <style name="CustomColorPicker" parent="ColorPicker">
-        <item name="cp_backgroundColor">#66AFD4</item>
+        <item name="cp_backgroundColor">@color/pebble</item>
         <item name="cp_showOpacityBar">false</item>
         <item name="cp_showHexaDecimalValue">true</item>
         <item name="cp_showColorComponentsInfo">true</item>
-        <item name="cp_hexaDecimalTextColor">#000046</item>
-        <item name="cp_colorComponentsTextColor">#fff</item>
-        <item name="cp_positiveActionTextColor">@color/colorAccent</item>
-        <item name="cp_negativeActionTextColor">@color/colorPrimaryDark</item>
+        <item name="cp_hexaDecimalTextColor">@color/white</item>
+        <item name="cp_colorComponentsTextColor">@color/white</item>
+        <item name="cp_positiveActionTextColor">@color/white</item>
+        <item name="cp_negativeActionTextColor">@color/white</item>
         <item name="cp_sliderThumbColor">#accc</item>
     </style>
 </resources>

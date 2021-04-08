@@ -73,7 +73,7 @@ class MyProfileActivity : BaseActivity(), View.OnClickListener {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         if (!Places.isInitialized()) {
-            Places.initialize(this@MyProfileActivity, resources.getString(R.string.google_api_key))
+            Places.initialize(this@MyProfileActivity, resources.getString(R.string.google_maps_key))
         }
 
         binding.myProfileImage.setOnClickListener(this)
@@ -87,7 +87,6 @@ class MyProfileActivity : BaseActivity(), View.OnClickListener {
             R.id.myProfileImage -> {
                 showPictureDialog()
             }
-            // TODO: Include Google Places API, but first figure out why the functionality to enter an address is not working
             R.id.myProfileLocationEditInput -> {
                 try {
                     val fields = listOf(

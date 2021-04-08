@@ -3,15 +3,19 @@ package com.macode.realla.adapters
 import android.app.AlertDialog
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.Color
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.macode.realla.R
 import com.macode.realla.activities.TaskListActivity
 import com.macode.realla.databinding.SingleTaskItemBinding
 import com.macode.realla.models.Task
@@ -182,23 +186,34 @@ open class TaskListItemsAdapter(private val context: Context, private var list: 
         layout.requestFocus()
     }
 
-//    TODO: Make the alert dialog look cleaner
     private fun alertDialogForDeleteTaskList(position: Int, title: String) {
         val builder = AlertDialog.Builder(context)
-        builder.setTitle("Warning!")
+        val inflater: LayoutInflater = LayoutInflater.from(context)
+        val view: View = inflater.inflate(R.layout.alert_dialog_title, null)
+        builder.setCustomTitle(view)
         builder.setMessage("Are you sure you want to delete $title?")
         builder.setIcon(android.R.drawable.ic_dialog_alert)
-        builder.setPositiveButton("Yes") {dialogInterface, which ->
+        builder.setPositiveButton("Yes") { dialogInterface, _ ->
             dialogInterface.dismiss()
             if (context is TaskListActivity) {
                 context.deleteTaskList(position)
             }
         }
-        builder.setNegativeButton("No") {dialogInterface, which ->
+        builder.setNegativeButton("No") { dialogInterface, _ ->
             dialogInterface.dismiss()
         }
-        val alertDialog: AlertDialog = builder.create()
-        alertDialog.setCancelable(false)
-        alertDialog.show()
+    val alertDialog: AlertDialog = builder.create()
+    alertDialog.setCancelable(false)
+    alertDialog.show()
+    val messageView: TextView = alertDialog.findViewById(android.R.id.message) as TextView
+    messageView.gravity = Gravity.CENTER
+    val positiveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+    val negativeButton = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+    positiveButton.setTextColor(Color.BLACK)
+    negativeButton.setTextColor(Color.BLACK)
+    val positiveButtonLinearLayout: LinearLayout.LayoutParams = positiveButton.layoutParams as LinearLayout.LayoutParams
+    positiveButtonLinearLayout.weight = 10.0f
+    positiveButton.layoutParams = positiveButtonLinearLayout
+    negativeButton.layoutParams = positiveButtonLinearLayout
     }
 }

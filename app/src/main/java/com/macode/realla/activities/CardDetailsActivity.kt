@@ -9,10 +9,10 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.widget.DatePicker
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.GridLayoutManager
@@ -206,12 +206,12 @@ class CardDetailsActivity : BaseActivity() {
         listDialog.show()
     }
 
-    //    TODO: Make the alert dialog look cleaner
     private fun alertDialogForDeleteCard(cardName: String) {
         val builder = AlertDialog.Builder(this)
-        builder.setTitle("Warning!")
+        val inflater: LayoutInflater = layoutInflater
+        val view: View = inflater.inflate(R.layout.alert_dialog_title, null)
+        builder.setCustomTitle(view)
         builder.setMessage("Are you sure you want to delete $cardName?")
-        builder.setIcon(android.R.drawable.ic_dialog_alert)
         builder.setPositiveButton("Yes") { dialogInterface, _ ->
             dialogInterface.dismiss()
             deleteCard()
@@ -222,9 +222,18 @@ class CardDetailsActivity : BaseActivity() {
         val alertDialog: AlertDialog = builder.create()
         alertDialog.setCancelable(false)
         alertDialog.show()
+        val messageView: TextView = alertDialog.findViewById(android.R.id.message) as TextView
+        messageView.gravity = Gravity.CENTER
+        val positiveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+        val negativeButton = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+        positiveButton.setTextColor(Color.BLACK)
+        negativeButton.setTextColor(Color.BLACK)
+        val positiveButtonLinearLayout: LinearLayout.LayoutParams = positiveButton.layoutParams as LinearLayout.LayoutParams
+        positiveButtonLinearLayout.weight = 10.0f
+        positiveButton.layoutParams = positiveButtonLinearLayout
+        negativeButton.layoutParams = positiveButtonLinearLayout
     }
 
-    // TODO: Customize the color palette picker dialog
     private fun colorPalettePickerDialog() {
         val colorPickerDialog = ColorPickerDialog.createColorPickerDialog(this, R.style.CustomColorPicker)
         colorPickerDialog.setOnColorPickedListener { _, hexVal ->

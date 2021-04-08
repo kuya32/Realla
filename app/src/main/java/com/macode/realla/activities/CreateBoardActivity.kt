@@ -6,10 +6,13 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.ImageDecoder
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
+import android.opengl.Visibility
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.Toolbar
@@ -25,6 +28,8 @@ import java.io.IOException
 class CreateBoardActivity : BaseActivity() {
     private lateinit var binding: ActivityCreateBoardBinding
     private lateinit var usersFullName: String
+    private var assignedUsersArrayList: ArrayList<String> = ArrayList()
+    private var editBoardDetails: Board? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +43,24 @@ class CreateBoardActivity : BaseActivity() {
             usersFullName = intent.getStringExtra("usersFullName").toString()
         }
 
+        if (intent.hasExtra("boardDetails")) {
+            editBoardDetails = intent.getParcelableExtra("boardDetails")
+        }
+
+        if (editBoardDetails != null) {
+            supportActionBar?.title = "Edit board"
+            selectedImageFileUri = (Uri.parse(editBoardDetails!!.image))
+            Glide
+                .with(this)
+                .load(selectedImageFileUri)
+                .centerCrop()
+                .placeholder(R.drawable.person)
+                .into(binding.boardImage)
+            binding.boardNameEditInput.setText(editBoardDetails!!.name)
+            binding.createBoardButton.visibility = View.GONE
+            binding.editBoardButton.visibility = View.VISIBLE
+        }
+
         binding.boardImage.setOnClickListener {
             showPictureDialog()
         }
@@ -49,7 +72,18 @@ class CreateBoardActivity : BaseActivity() {
             } else if (binding.boardNameEditInput.text.isNullOrEmpty()) {
                 showError(binding.boardNameInput, "Please enter a name for the board!")
             } else {
-                uploadBoardInformationToFirebase()
+                uploadBoardInformationToFirebase("create")
+            }
+        }
+
+        binding.editBoardButton.setOnClickListener {
+            showProgressDialog("Editing board...")
+            if (selectedImageFileUri == null) {
+                Toast.makeText(this@CreateBoardActivity, "Please select an image!", Toast.LENGTH_SHORT).show()
+            } else if (binding.boardNameEditInput.text.isNullOrEmpty()) {
+                showError(binding.boardNameInput, "Please enter a name for the board!")
+            } else {
+                uploadBoardInformationToFirebase("edit")
             }
         }
     }
@@ -95,7 +129,7 @@ class CreateBoardActivity : BaseActivity() {
         }
     }
 
-    private fun uploadBoardInformationToFirebase() {
+    private fun uploadBoardInformationToFirebase(string: String) {
         if (selectedImageFileUri != null) {
             val storageRef = storageReference.reference.child("BoardImages${System.currentTimeMillis()}.png")
             storageRef.putFile(selectedImageFileUri!!).addOnSuccessListener { taskSnapshot ->
@@ -103,7 +137,11 @@ class CreateBoardActivity : BaseActivity() {
                 taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener { uri ->
                     Log.i("DownloadableImageURL", uri.toString())
                     boardImageURL = uri.toString()
-                    createBoard()
+                    if (string == "create") {
+                        createBoard()
+                    } else {
+                        editBoard()
+                    }
                 }
             }.addOnFailureListener { exception ->
                 Toast.makeText(this@CreateBoardActivity, exception.message, Toast.LENGTH_LONG).show()
@@ -113,10 +151,9 @@ class CreateBoardActivity : BaseActivity() {
     }
 
     private fun createBoard() {
-        val assignedUsersArrayList: ArrayList<String> = ArrayList()
         assignedUsersArrayList.add(getCurrentID())
 
-        var board = Board(
+        val board = Board(
             "",
             getDate(),
             binding.boardNameEditInput.text.toString(),
@@ -128,7 +165,23 @@ class CreateBoardActivity : BaseActivity() {
         fireStoreClass.createBoard(this, board)
     }
 
+    private fun editBoard() {
+        val boardHashMap: HashMap<String, Any> = HashMap()
+
+        boardHashMap["documentID"] = editBoardDetails!!.documentID
+        boardHashMap["name"] = binding.boardNameEditInput.text.toString()
+        boardHashMap["image"] = boardImageURL!!
+
+        fireStoreClass.editBoard(this, boardHashMap)
+    }
+
     fun boardCreatedSuccessfully() {
+        hideProgressDialog()
+        setResult(Activity.RESULT_OK)
+        finish()
+    }
+
+    fun boardEditedSuccessfully() {
         hideProgressDialog()
         setResult(Activity.RESULT_OK)
         finish()
@@ -141,7 +194,7 @@ class CreateBoardActivity : BaseActivity() {
         supportActionBar?.title = "Create Board"
         supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         supportActionBar?.setHomeAsUpIndicator(R.drawable.red_back)
-        toolbar.setTitleTextColor(Color.parseColor("#763626"))
+        toolbar.setTitleTextColor(Color.parseColor("#FFFFFFFF"))
         toolbar.setNavigationOnClickListener {
             onBackPressed()
         }

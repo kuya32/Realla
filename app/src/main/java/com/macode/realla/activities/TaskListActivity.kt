@@ -61,8 +61,6 @@ class TaskListActivity : BaseActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = boardDetails.name
         supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.parseColor("#B3FCFF")))
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.blue_back)
-//        toolbar.setTitleTextColor(Color.parseColor("#430300"))
         toolbar.setNavigationOnClickListener {
             onBackPressed()
         }
@@ -145,7 +143,6 @@ class TaskListActivity : BaseActivity() {
         assignedMembersDetailList = list
         hideProgressDialog()
 
-        // TODO: Figure out why we need to add an extra task card
         val addTaskList = Task("Add List")
         boardDetails.taskList.add(addTaskList)
 
