@@ -53,8 +53,9 @@ open class BaseActivity : AppCompatActivity() {
         const val PLACE_AUTOCOMPLETE_REQUEST_CODE = 3
         const val MY_PROFILE_REQUEST_CODE = 11
         const val CREATE_BOARD_REQUEST_CODE = 12
-        const val MEMBERS_REQUEST_CODE = 13
-        const val CARD_DETAILS_REQUEST_CODE = 14
+        const val EDIT_BOARD_REQUEST_CODE = 13
+        const val MEMBERS_REQUEST_CODE = 14
+        const val CARD_DETAILS_REQUEST_CODE = 15
         const val IMAGE_DIRECTORY = "ReallaAppImages"
         const val NOTI = "Notification"
     }

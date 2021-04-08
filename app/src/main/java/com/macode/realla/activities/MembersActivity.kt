@@ -10,7 +10,9 @@ import android.util.Log
 import android.view.*
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.macode.realla.R
@@ -19,6 +21,8 @@ import com.macode.realla.databinding.ActivityMembersBinding
 import com.macode.realla.databinding.DialogSearchMemberBinding
 import com.macode.realla.models.Board
 import com.macode.realla.models.User
+import com.macode.realla.utilities.SwipeToDeleteCallback
+import com.macode.realla.utilities.SwipeToEditCallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -89,6 +93,16 @@ class MembersActivity : BaseActivity() {
 
         val adapter = MemberListItemsAdapter(this, list)
         binding.memberListRecyclerView.adapter = adapter
+
+        val deleteSwipeHandler = object: SwipeToDeleteCallback(this) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val adapter = binding.memberListRecyclerView.adapter as MemberListItemsAdapter
+                adapter.removeAt(this@MembersActivity, boardDetails, viewHolder.adapterPosition)
+            }
+        }
+
+        val deleteItemTouchHelper = ItemTouchHelper(deleteSwipeHandler)
+        deleteItemTouchHelper.attachToRecyclerView(binding.memberListRecyclerView)
     }
 
     fun memberDetails(user: User) {
@@ -102,6 +116,13 @@ class MembersActivity : BaseActivity() {
         anyChangesMade = true
         setUpMemberList(assignedMembersList)
         sendNotificationToUser(boardDetails.name, user.fcmToken)
+    }
+
+    fun memberRemovedSuccess(user: User) {
+        hideProgressDialog()
+        assignedMembersList.remove(user)
+        anyChangesMade = true
+        setUpMemberList(assignedMembersList)
     }
 
     private fun dialogSearchMember() {
