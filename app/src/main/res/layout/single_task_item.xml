@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--TODO: Make the task UI look cleaner with color scheme and clear dividers-->
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    app:cardCornerRadius="15dp"
     android:elevation="5dp"
     android:orientation="vertical">
 
@@ -20,7 +20,6 @@
             android:background="@drawable/shape_blue_button_rounded"
             android:foreground="?attr/selectableItemBackground"
             android:gravity="center"
-            android:layout_margin="5dp"
             android:padding="12dp"
             android:text="Add List"
             android:textColor="@color/black"
@@ -35,7 +34,6 @@
             android:id="@+id/addTaskListNameCardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
             android:elevation="5dp"
             android:visibility="gone"
             app:cardCornerRadius="5dp"
@@ -91,6 +89,7 @@
             android:gravity="center_vertical"
             android:orientation="vertical"
             android:visibility="gone"
+            android:background="@color/lightAutumnFoliage"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/addTaskListNameCardView"
@@ -100,7 +99,7 @@
                 android:id="@+id/constraintTitleView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/white"
+                android:background="@color/lightPebble"
                 android:elevation="10dp"
                 android:gravity="center"
                 android:visibility="visible">
@@ -110,6 +109,8 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:hint="Title"
+                    android:textColorHint="@color/black"
+                    android:textColor="@color/black"
                     android:padding="10dp"
                     android:textSize="16sp"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -151,7 +152,6 @@
                 android:id="@+id/editTaskListNameCardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
                 android:elevation="5dp"
                 android:visibility="gone"
                 tools:visibility="visible" >
@@ -207,7 +207,6 @@
                 android:id="@+id/addCardCardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
                 android:elevation="5dp"
                 android:visibility="gone"
                 app:cardCornerRadius="5dp"
