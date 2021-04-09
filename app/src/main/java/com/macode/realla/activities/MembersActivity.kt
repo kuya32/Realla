@@ -181,7 +181,7 @@ class MembersActivity : BaseActivity() {
 
                 connection.setRequestProperty(
                     "authorization",
-                    "key=AAAABDxQeQw:APA91bEfxWQ49HaEtwjgXORukp47M3hzL9wx6sYGQ5VeXoJeGWezeHPOamCHPXlRYIfHhHXWKrmaV2T8dAVKvASSBWdjXGk_ot3nn83lXiIahWtAWrx_SPC9rrxcags9xOxCqTmuo-Hf"
+                    "key= Provide your own Google Cloud Messaging authorization key"
                 )
 
                 connection.useCaches = false
