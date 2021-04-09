@@ -49,6 +49,26 @@
 1. Run `git clone git@github.com:kuya32/Realla.git` command to clone project
 2. Open `Android Studio` and select `File | Open...` from the menu. Select cloned directory and press `Open` button
 
+### Retrieve your Google Cloud Messaging key
+
+1. In Firebase console your project, click on "Project Settings"
+2. Under "Cloud Messaging" tab, copy the server key token
+3. Paste your server key token in the MemberActivity file on line 184
+
+### Retrieve your Google Location API key
+
+1. Connect your project with Google Cloud Console
+2. Select the API Library on the left side of console
+3. Enable "Maps SDK for Android" and "Places API"
+4. Select Credentials on the left side of the console
+5. Select "Create Credentials" on the top of console and then select "API Key"
+6. Select the edit option for your new API key
+7. Under "Application Restrictions," select Android Apps
+8. Select "Add an Item" and provide the package name and SHA-1 certificate fingerprint from your project (You can retrieve this information by creating a new Google Maps Fragment)
+9. Select save and copy your API key
+10. Within Android Studio, select your "app" folder, then "res" folder, then "values" folder, and in the "google_maps_api.xml" file paste your API key on line 22
+11. Run the app and enjoy!
+
 ## Built With
 
 - Android Studios
